@@ -10,8 +10,9 @@ static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
 
 TrayViewModel::TrayViewModel(HomeAssistantService* haService, QObject *parent) : _haService(haService), QObject{parent}
 {
-    QObject::connect(_haService, &HomeAssistantService::ResultReceived, this, &TrayViewModel::OnResultReceived);
-    QObject::connect(_haService, &HomeAssistantService::Connected, this, &TrayViewModel::OnHomeAssistantConnected);
+    QObject::connect(_haService, &HomeAssistantService::Connected, this, &TrayViewModel::OnHAConnected);
+    QObject::connect(_haService, &HomeAssistantService::ResultReceived, this, &TrayViewModel::OnHAResultReceived);
+    QObject::connect(_haService, &HomeAssistantService::EventReceived, this, &TrayViewModel::OnHAEventReceived);
 }
 
 void TrayViewModel::QuitApplication()
@@ -29,11 +30,6 @@ bool TrayViewModel::GetHumidifierState()
     return _humidifierState;
 }
 
-void TrayViewModel::LoadCurrentState()
-{
-    _fetchStateCommandId = _haService->FetchStates();
-}
-
 void TrayViewModel::SetTestPlugState(bool on)
 {
     _haService->CallService("switch", QString("turn_%1").arg(on ? "on" : "off"), TESTPLUG_ENTITY_ID);
@@ -44,14 +40,23 @@ bool TrayViewModel::GetTestPlugState()
     return _testPlugState;
 }
 
-void TrayViewModel::OnHomeAssistantConnected()
+void TrayViewModel::OnHAConnected()
 {
-    LoadCurrentState();
+    // Listen to state changed events
+    _stateChangedEventId = _haService->SubscribeToEvents("state_changed");
+
+    // Load current state
+    _fetchStateCommandId = _haService->FetchStates();
 }
 
-void TrayViewModel::OnResultReceived(int id, bool success, const QJsonValue& result)
+void TrayViewModel::OnHAResultReceived(int id, bool success, const QJsonValue& result)
 {
     using namespace std;
+
+    if (!success)
+    {
+        return;
+    }
 
     if (id == _fetchStateCommandId)
     {
@@ -77,6 +82,33 @@ void TrayViewModel::OnResultReceived(int id, bool success, const QJsonValue& res
         if (it != end(entities))
         {
             auto newState = (*it)[QLatin1String("state")].toString() == "on";
+            if (newState != _humidifierState)
+            {
+                _humidifierState = newState;
+                emit HumidifierStateChanged(newState);
+            }
+        }
+    }
+}
+
+void TrayViewModel::OnHAEventReceived(int id, const QJsonObject& event)
+{
+    if (id == _stateChangedEventId)
+    {
+        auto data = event["data"].toObject();
+        auto newState = data["new_state"][QLatin1String("state")].toString() == "on";
+        auto entity = data["entity_id"].toString();
+
+        if (entity == TESTPLUG_ENTITY_ID)
+        {
+            if (newState != _testPlugState)
+            {
+                _testPlugState = newState;
+                emit TestPlugStateChanged(newState);
+            }
+        }
+        else if (entity == HUMIDIFIER_ENTITY_ID)
+        {
             if (newState != _humidifierState)
             {
                 _humidifierState = newState;

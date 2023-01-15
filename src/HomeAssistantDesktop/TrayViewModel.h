@@ -29,20 +29,22 @@ signals:
 
 private slots:
 
-    void OnHomeAssistantConnected();
+    void OnHAConnected();
 
-    void OnResultReceived(int id, bool success, const QJsonValue& result);
+    void OnHAResultReceived(int id, bool success, const QJsonValue& result);
+
+    void OnHAEventReceived(int id, const QJsonObject& event);
 
 private:
     QPointer<HomeAssistantService> _haService;
 
     int _fetchStateCommandId = 0;
+    
+    int _stateChangedEventId = 0;
 
     bool _humidifierState = false;
 
     bool _testPlugState = false;
-
-    void LoadCurrentState();
 };
 
 #endif // TRAYVIEWMODEL_H

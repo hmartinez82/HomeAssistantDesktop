@@ -35,6 +35,8 @@ signals:
 
     void ResultReceived(int id, bool success, const QJsonValue& result);
 
+    void EventReceived(int id, const QJsonObject& event);
+
 private slots:
 
     void OnWebSocketConnected();

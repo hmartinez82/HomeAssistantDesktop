@@ -82,6 +82,10 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
             auto success = jDoc["success"].toBool();
             emit ResultReceived(jDoc["id"].toInt(), success, success ? jDoc["result"] : jDoc["error"]);
         }
+        else if (jDoc["type"].toString() == "event")
+        {
+            emit EventReceived(jDoc["id"].toInt(), jDoc["event"].toObject());
+        }
         break;
     }
 }
@@ -119,7 +123,7 @@ int HomeAssistantService::SubscribeToEvents(const QString& eventType)
 {
     QJsonObject jObj;
     jObj["type"] = "subscribe_events";
-    jObj["event_type"] = "eventType";
+    jObj["event_type"] = eventType;
     return SendCommand(jObj);
 }
 
