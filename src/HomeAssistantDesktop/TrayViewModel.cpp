@@ -74,8 +74,6 @@ void TrayViewModel::OnResultReceived(int id, bool success, const QJsonValue& res
             return v["entity_id"].toString() == HUMIDIFIER_ENTITY_ID;
         });
 
-        //QJsonValueConstRef
-
         if (it != end(entities))
         {
             auto newState = (*it)[QLatin1String("state")].toString() == "on";

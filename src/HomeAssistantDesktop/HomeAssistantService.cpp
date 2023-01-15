@@ -115,6 +115,14 @@ int HomeAssistantService::FetchStates()
     return SendCommand(jObj);
 }
 
+int HomeAssistantService::SubscribeToEvents(const QString& eventType)
+{
+    QJsonObject jObj;
+    jObj["type"] = "subscribe_events";
+    jObj["event_type"] = "eventType";
+    return SendCommand(jObj);
+}
+
 void HomeAssistantService::SendJsonObject(const QJsonObject& obj)
 {
     auto message = QString::fromUtf8(QJsonDocument(obj).toJson(QJsonDocument::Compact));

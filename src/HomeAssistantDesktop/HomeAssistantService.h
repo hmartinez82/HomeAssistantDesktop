@@ -26,6 +26,8 @@ public:
 
     int FetchStates();
 
+    int SubscribeToEvents(const QString& eventType);
+
 signals:
     void Connected();
 
