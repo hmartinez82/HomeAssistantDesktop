@@ -43,12 +43,18 @@
     <ClCompile Include="TrayViewModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HomeAssistantService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TrayView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="TrayViewModel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="HomeAssistantService.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
