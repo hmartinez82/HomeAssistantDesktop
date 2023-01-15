@@ -18,8 +18,14 @@ public:
 
     bool GetHumidifierState();
 
+    void SetTestPlugState(bool on);
+
+    bool GetTestPlugState();
+
 signals:
     void HumidifierStateChanged(bool state);
+
+    void TestPlugStateChanged(bool state);
 
 private slots:
     void OnLoadcurrentStateRequestFinished();
@@ -28,6 +34,8 @@ private:
     QPointer<QNetworkAccessManager> _networkManager;
 
     bool _humidifierState = false;
+
+    bool _testPlugState = false;
 
     void LoadCurrentState();
 

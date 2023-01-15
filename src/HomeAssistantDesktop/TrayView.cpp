@@ -13,17 +13,24 @@ TrayView::TrayView(TrayViewModel* viewModel, QObject *parent) : QObject{parent},
 
 void TrayView::InitializeComponents()
 {
-    auto toggleAction = new QAction("Toggle");
-    toggleAction->setCheckable(true);
-    toggleAction->setChecked(_viewModel->GetHumidifierState());
-    connect(toggleAction, &QAction::triggered, this, &TrayView::OnToggleActionToggled);
-    connect(_viewModel, &TrayViewModel::HumidifierStateChanged, toggleAction, &QAction::setChecked);
+    auto humidifierAction = new QAction("Humidifier");
+    humidifierAction->setCheckable(true);
+    humidifierAction->setChecked(_viewModel->GetHumidifierState());
+    connect(humidifierAction, &QAction::triggered, this, &TrayView::OnHumidifierActionToggled);
+    connect(_viewModel, &TrayViewModel::HumidifierStateChanged, humidifierAction, &QAction::setChecked);
+
+    auto testPlugAction = new QAction("Test Plug");
+    testPlugAction->setCheckable(true);
+    testPlugAction->setChecked(_viewModel->GetTestPlugState());
+    connect(testPlugAction, &QAction::triggered, this, &TrayView::OnTestPlugActionToggled);
+    connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
 
     auto quitAction = new QAction("Quit");
     connect(quitAction, &QAction::triggered, this, &TrayView::OnQuitActionTriggered);
 
     auto menu = new QMenu();
-    menu->addAction(toggleAction);
+    menu->addAction(humidifierAction);
+    menu->addAction(testPlugAction);
     menu->addSeparator();
     menu->addAction(quitAction);
 
@@ -39,7 +46,12 @@ void TrayView::OnQuitActionTriggered(bool)
     _viewModel->QuitApplication();
 }
 
-void TrayView::OnToggleActionToggled(bool checked)
+void TrayView::OnHumidifierActionToggled(bool checked)
 {
     _viewModel->SetHumidifierState(checked);
+}
+
+void TrayView::OnTestPlugActionToggled(bool checked)
+{
+    _viewModel->SetTestPlugState(checked);
 }

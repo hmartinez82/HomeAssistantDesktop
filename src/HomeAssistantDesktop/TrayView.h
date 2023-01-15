@@ -17,7 +17,9 @@ signals:
 private slots:
     void OnQuitActionTriggered(bool);
 
-    void OnToggleActionToggled(bool);
+    void OnHumidifierActionToggled(bool);
+
+    void OnTestPlugActionToggled(bool);
 
 private:
     QPointer<TrayViewModel> _viewModel;
