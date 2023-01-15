@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HomeAssistantDesktop", "HomeAssistantDesktop\HomeAssistantDesktop.vcxproj", "{6AF599A1-5384-4745-927B-20D1F7149E90}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6C5AE1B4-1732-44F5-A373-B9922780404D} = {6C5AE1B4-1732-44F5-A373-B9922780404D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApi", "WinApi\WinApi.vcxproj", "{6C5AE1B4-1732-44F5-A373-B9922780404D}"
 EndProject
