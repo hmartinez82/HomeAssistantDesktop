@@ -69,7 +69,6 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
         }
         break;
     case HAConnectionState::AUTHENTICATING:
-        auto jDoc = QJsonDocument::fromJson(message.toUtf8());
         if (jDoc["type"].toString() == "auth_ok")
         {
             qDebug() << "Connected to Home Assistant, version " << jDoc["ha_version"].toString();
@@ -77,21 +76,19 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
             emit Connected();
         }
         break;
+    case HAConnectionState::CONNECTED:
+        if (jDoc["type"].toString() == "result")
+        {
+            auto success = jDoc["success"].toBool();
+            emit OnResultReceived(jDoc["id"].toInt(), success, success ? jDoc["result"].toObject() : jDoc["error"].toObject());
+        }
+        break;
     }
 }
 
-void HomeAssistantService::SendJsonObject(const QJsonObject& obj)
-{
-    auto message = QString::fromUtf8(QJsonDocument(obj).toJson(QJsonDocument::Compact));
-    _webSocket->sendTextMessage(message);
-    _webSocket->flush();
-}
-
-
-void HomeAssistantService::CallService(const QString& domain, const QString& service, const QJsonObject& target, const QJsonObject& serviceData)
+int HomeAssistantService::CallService(const QString& domain, const QString& service, const QJsonObject& target, const QJsonObject& serviceData)
 {
     QJsonObject jObj;
-    jObj["id"] = _haNextMessageId++;
     jObj["type"] = "call_service";
     jObj["domain"] = domain;
     jObj["service"] = service;
@@ -103,10 +100,33 @@ void HomeAssistantService::CallService(const QString& domain, const QString& ser
     {
         jObj["service_data"] = serviceData;
     }
-    SendJsonObject(jObj);
+    return SendCommand(jObj);
 }
 
-void HomeAssistantService::CallService(const QString& domain, const QString& service, const QString& targetEntity, const QJsonObject& serviceData)
+int HomeAssistantService::CallService(const QString& domain, const QString& service, const QString& targetEntity, const QJsonObject& serviceData)
 {
-    CallService(domain, service, QJsonObject{ {"entity_id", targetEntity} }, serviceData);
+    return CallService(domain, service, QJsonObject{ {"entity_id", targetEntity} }, serviceData);
+}
+
+int HomeAssistantService::FetchStates()
+{
+    QJsonObject jObj;
+    jObj["type"] = "get_states";
+    return SendCommand(jObj);
+}
+
+void HomeAssistantService::SendJsonObject(const QJsonObject& obj)
+{
+    auto message = QString::fromUtf8(QJsonDocument(obj).toJson(QJsonDocument::Compact));
+    _webSocket->sendTextMessage(message);
+    _webSocket->flush();
+}
+
+int HomeAssistantService::SendCommand(const QJsonObject& obj)
+{
+    auto id = _haNextMessageId++;
+    auto commandObj = obj;
+    commandObj["id"] = id;
+    SendJsonObject(commandObj);
+    return id;
 }

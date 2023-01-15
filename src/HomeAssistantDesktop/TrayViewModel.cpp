@@ -36,13 +36,13 @@ bool TrayViewModel::GetHumidifierState()
 
 void TrayViewModel::LoadCurrentState()
 {
-    auto req = CreateBaseRequest(QString("/states/%1").arg(HUMIDIFIER_ENTITY_ID));
-    auto reply = _networkManager->get(req);
-    connect(reply, &QNetworkReply::finished, this, &TrayViewModel::OnLoadcurrentStateRequestFinished);
+    //auto req = CreateBaseRequest(QString("/states/%1").arg(HUMIDIFIER_ENTITY_ID));
+    //auto reply = _networkManager->get(req);
+    //connect(reply, &QNetworkReply::finished, this, &TrayViewModel::OnLoadcurrentStateRequestFinished);
 
-    req = CreateBaseRequest(QString("/states/%1").arg(TESTPLUG_ENTITY_ID));
-    reply = _networkManager->get(req);
-    connect(reply, &QNetworkReply::finished, this, &TrayViewModel::OnLoadcurrentStateRequestFinished);
+    //req = CreateBaseRequest(QString("/states/%1").arg(TESTPLUG_ENTITY_ID));
+    //reply = _networkManager->get(req);
+    //connect(reply, &QNetworkReply::finished, this, &TrayViewModel::OnLoadcurrentStateRequestFinished);
 }
 
 void TrayViewModel::SetTestPlugState(bool on)
@@ -79,16 +79,4 @@ void TrayViewModel::OnLoadcurrentStateRequestFinished()
         }
     }
     reply->close();
-}
-
-QNetworkRequest TrayViewModel::CreateBaseRequest(const QString& path)
-{
-    auto token = WinApi_ReadAuthToken();
-
-    QNetworkRequest req(API_URL + path);
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    req.setRawHeader(QByteArray("Authorization"),
-                     QByteArray("Bearer ").append(token.c_str()));
-
-    return req;
 }

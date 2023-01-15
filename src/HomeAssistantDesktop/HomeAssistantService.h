@@ -18,16 +18,20 @@ public:
 
     void Disconnect();
 
-    void CallService(const QString& domain, const QString& service,
-                     const QJsonObject& target = QJsonObject(),
+    int CallService(const QString& domain, const QString& service,
+                    const QJsonObject& target = QJsonObject(),
                      const QJsonObject& serviceData = QJsonObject());
-    void CallService(const QString& domain, const QString& service, const QString& targetEntity,
-                     const QJsonObject& serviceData = QJsonObject());
+    int CallService(const QString& domain, const QString& service, const QString& targetEntity,
+                    const QJsonObject& serviceData = QJsonObject());
+
+    int FetchStates();
 
 signals:
     void Connected();
 
     void Disconnected();
+
+    void OnResultReceived(int id, bool success, const QJsonObject& result);
 
 private slots:
 
@@ -53,5 +57,7 @@ private:
     int _haNextMessageId = 0;
 
     void SendJsonObject(const QJsonObject& obj);
+
+    int SendCommand(const QJsonObject& obj);
 };
 

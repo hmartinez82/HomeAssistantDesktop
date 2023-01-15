@@ -42,8 +42,6 @@ private:
     bool _testPlugState = false;
 
     void LoadCurrentState();
-
-    QNetworkRequest CreateBaseRequest(const QString& path);
 };
 
 #endif // TRAYVIEWMODEL_H
