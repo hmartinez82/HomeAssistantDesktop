@@ -6,11 +6,13 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 
+class HomeAssistantService;
+
 class TrayViewModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit TrayViewModel(QObject *parent = nullptr);
+    explicit TrayViewModel(HomeAssistantService* haService, QObject *parent = nullptr);
 
     void QuitApplication();
 
@@ -32,6 +34,8 @@ private slots:
 
 private:
     QPointer<QNetworkAccessManager> _networkManager;
+
+    QPointer<HomeAssistantService> _haService;
 
     bool _humidifierState = false;
 

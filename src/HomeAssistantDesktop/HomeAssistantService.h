@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include <QPointer>
+#include <QJsonObject>
 
 class QWebSocket;
 
@@ -16,6 +17,12 @@ public:
     void Connect();
 
     void Disconnect();
+
+    void CallService(const QString& domain, const QString& service,
+                     const QJsonObject& target = QJsonObject(),
+                     const QJsonObject& serviceData = QJsonObject());
+    void CallService(const QString& domain, const QString& service, const QString& targetEntity,
+                     const QJsonObject& serviceData = QJsonObject());
 
 signals:
     void Connected();
@@ -42,6 +49,8 @@ private:
     QPointer<QWebSocket> _webSocket;
 
     HAConnectionState _haConnectionState = HAConnectionState::DISCONNECTED;
+
+    int _haNextMessageId = 0;
 
     void SendJsonObject(const QJsonObject& obj);
 };

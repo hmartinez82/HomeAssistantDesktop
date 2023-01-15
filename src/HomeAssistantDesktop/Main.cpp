@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
     WinApi_Initialize();
 
     HomeAssistantService haService;
-    haService.Connect();
-
-    TrayViewModel viewModel;
+    TrayViewModel viewModel(&haService);
     TrayView view(&viewModel);
+
+    haService.Connect();
 
     auto ret = a.exec();
     WinApi_Shutdown();

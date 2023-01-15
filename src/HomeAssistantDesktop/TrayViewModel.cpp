@@ -5,13 +5,14 @@
 #include <QNetworkReply>
 #include <QUrl>
 #include <QJsonDocument>
+#include "HomeAssistantService.h"
 #include "WinApi.h"
 
 static const QString HUMIDIFIER_ENTITY_ID = "switch.humidifier";
 static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
 static const QString API_URL = "http://192.168.1.3:8123/api";
 
-TrayViewModel::TrayViewModel(QObject *parent) : QObject{parent}
+TrayViewModel::TrayViewModel(HomeAssistantService* haService, QObject *parent) : _haService(haService), QObject{parent}
 {
     _networkManager = new QNetworkAccessManager(this);
 
@@ -25,8 +26,7 @@ void TrayViewModel::QuitApplication()
 
 void TrayViewModel::SetHumidifierState(bool on)
 {
-    auto req = CreateBaseRequest(QString("/services/switch/turn_%1").arg(on ? "on" : "off"));
-    _networkManager->post(req, QString("{\"entity_id\": \"%1\"}").arg(HUMIDIFIER_ENTITY_ID).toUtf8());
+    _haService->CallService("switch", QString("turn_%1").arg(on ? "on" : "off"), HUMIDIFIER_ENTITY_ID);
 }
 
 bool TrayViewModel::GetHumidifierState()
@@ -47,8 +47,7 @@ void TrayViewModel::LoadCurrentState()
 
 void TrayViewModel::SetTestPlugState(bool on)
 {
-    auto req = CreateBaseRequest(QString("/services/switch/turn_%1").arg(on ? "on" : "off"));
-    _networkManager->post(req, QString("{\"entity_id\": \"%1\"}").arg(TESTPLUG_ENTITY_ID).toUtf8());
+    _haService->CallService("switch", QString("turn_%1").arg(on ? "on" : "off"), TESTPLUG_ENTITY_ID);
 }
 
 bool TrayViewModel::GetTestPlugState()

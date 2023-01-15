@@ -43,11 +43,12 @@ void HomeAssistantService::Disconnect()
 
 void HomeAssistantService::OnWebSocketConnected()
 {
-
+    _haNextMessageId = 1;
 }
 
 void HomeAssistantService::OnWebSocketDisconnected()
 {
+    _haNextMessageId = 0;
     emit Disconnected();
 }
 
@@ -84,4 +85,28 @@ void HomeAssistantService::SendJsonObject(const QJsonObject& obj)
     auto message = QString::fromUtf8(QJsonDocument(obj).toJson(QJsonDocument::Compact));
     _webSocket->sendTextMessage(message);
     _webSocket->flush();
+}
+
+
+void HomeAssistantService::CallService(const QString& domain, const QString& service, const QJsonObject& target, const QJsonObject& serviceData)
+{
+    QJsonObject jObj;
+    jObj["id"] = _haNextMessageId++;
+    jObj["type"] = "call_service";
+    jObj["domain"] = domain;
+    jObj["service"] = service;
+    if (!target.isEmpty())
+    {
+        jObj["target"] = target;
+    }
+    if (!serviceData.isEmpty())
+    {
+        jObj["service_data"] = serviceData;
+    }
+    SendJsonObject(jObj);
+}
+
+void HomeAssistantService::CallService(const QString& domain, const QString& service, const QString& targetEntity, const QJsonObject& serviceData)
+{
+    CallService(domain, service, QJsonObject{ {"entity_id", targetEntity} }, serviceData);
 }
