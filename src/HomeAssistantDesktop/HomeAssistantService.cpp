@@ -80,7 +80,7 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
         if (jDoc["type"].toString() == "result")
         {
             auto success = jDoc["success"].toBool();
-            emit OnResultReceived(jDoc["id"].toInt(), success, success ? jDoc["result"].toObject() : jDoc["error"].toObject());
+            emit ResultReceived(jDoc["id"].toInt(), success, success ? jDoc["result"] : jDoc["error"]);
         }
         break;
     }

@@ -3,8 +3,6 @@
 
 #include <QObject>
 #include <QPointer>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
 
 class HomeAssistantService;
 
@@ -30,12 +28,15 @@ signals:
     void TestPlugStateChanged(bool state);
 
 private slots:
-    void OnLoadcurrentStateRequestFinished();
+
+    void OnHomeAssistantConnected();
+
+    void OnResultReceived(int id, bool success, const QJsonValue& result);
 
 private:
-    QPointer<QNetworkAccessManager> _networkManager;
-
     QPointer<HomeAssistantService> _haService;
+
+    int _fetchStateCommandId = 0;
 
     bool _humidifierState = false;
 

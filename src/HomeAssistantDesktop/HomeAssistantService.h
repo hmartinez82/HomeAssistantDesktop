@@ -31,7 +31,7 @@ signals:
 
     void Disconnected();
 
-    void OnResultReceived(int id, bool success, const QJsonObject& result);
+    void ResultReceived(int id, bool success, const QJsonValue& result);
 
 private slots:
 
