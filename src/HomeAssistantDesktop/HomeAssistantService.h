@@ -37,6 +37,8 @@ signals:
 
     void EventReceived(int id, const QJsonObject& event);
 
+    void ServiceErrored(const QString& message, int code);
+
 private slots:
 
     void OnWebSocketConnected();

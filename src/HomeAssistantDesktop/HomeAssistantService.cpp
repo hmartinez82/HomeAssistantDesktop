@@ -61,11 +61,18 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
     case HAConnectionState::CONNECTING:
         if (jDoc["type"].toString() == "auth_required")
         {
-            QJsonObject jObj;
-            jObj["type"] = "auth";
-            jObj["access_token"] = QString::fromStdString(WinApi_ReadAuthToken());
-            SendJsonObject(jObj);
-            _haConnectionState = HAConnectionState::AUTHENTICATING;
+            try {
+                auto token = WinApi_ReadAuthToken();
+                QJsonObject jObj;
+                jObj["type"] = "auth";
+                jObj["access_token"] = QString::fromStdString(token);
+                SendJsonObject(jObj);
+                _haConnectionState = HAConnectionState::AUTHENTICATING;
+            }
+            catch (const WinApiError& ex)
+            {
+                emit ServiceErrored(QString::fromLocal8Bit(ex.what()), ex.errorCode());
+            }
         }
         break;
     case HAConnectionState::AUTHENTICATING:
