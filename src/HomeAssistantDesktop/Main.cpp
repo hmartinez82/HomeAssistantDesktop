@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
+#include <QDir>
 #include <QMessageBox>
 #include <QWidget>
 #include <QWindow>
@@ -8,6 +9,7 @@
 #include "TrayViewModel.h"
 #include "TrayView.h"
 #include "WinApi.h"
+#include "Logging.h"
 
 void HandleWinApiError(const QString& message, int errorCode)
 {
@@ -18,6 +20,8 @@ void HandleWinApiError(const QString& message, int errorCode)
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    SetupLogger(QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/HomeAssistant.log"));
+
     WinApi_Shutdown();
     WinApi_Initialize();
 
@@ -53,5 +57,6 @@ int main(int argc, char *argv[])
         ret = a.exec();
     }
     WinApi_Shutdown();
+    qInfo("Exiting");
     return ret;
 }
