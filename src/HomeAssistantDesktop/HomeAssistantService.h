@@ -11,6 +11,15 @@ class HomeAssistantService : public QObject
     Q_OBJECT
 
 public:
+    enum class HAConnectionState : int
+    {
+        DISCONNECTED,
+        CONNECTING,
+        AUTHENTICATING,
+        CONNECTED
+    };
+    Q_ENUM(HAConnectionState)
+
     HomeAssistantService(QObject* parent = nullptr);
 
     ~HomeAssistantService();
@@ -51,13 +60,6 @@ private slots:
     void OnPingTimerTimeout();
 
 private:
-    enum class HAConnectionState
-    {
-        DISCONNECTED,
-        CONNECTING,
-        AUTHENTICATING,
-        CONNECTED
-    };
 
     QPointer<QWebSocket> _webSocket;
 

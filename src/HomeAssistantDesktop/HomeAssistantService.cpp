@@ -3,7 +3,11 @@
 #include <QUrl>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QMetaEnum>
 #include "WinApi.h"
+#include <QDebug>
+
+static const auto s_haWebSocketURL = "ws://192.168.1.3:8123/api/websocket";
 
 HomeAssistantService::HomeAssistantService(QObject* parent) : QObject(parent)
 {
@@ -27,10 +31,12 @@ void HomeAssistantService::Connect()
     switch (_haConnectionState)
     {
     case HAConnectionState::DISCONNECTED:
-        _webSocket->open(QUrl("ws://192.168.1.3:8123/api/websocket"));
+        qDebug("Connecting to %s", s_haWebSocketURL);
+        _webSocket->open(QUrl(s_haWebSocketURL));
         _haConnectionState = HAConnectionState::CONNECTING;
-        break;
+        return;
     }
+    qCritical() << "Unexpected state" << _haConnectionState;
 }
 
 void HomeAssistantService::Disconnect()
@@ -40,12 +46,14 @@ void HomeAssistantService::Disconnect()
     case HAConnectionState::AUTHENTICATING:
     case HAConnectionState::CONNECTED:
         _webSocket->close();
-        break;
+        return;
     }
+    qCritical() << "Unexpected state" << _haConnectionState;
 }
 
 void HomeAssistantService::OnWebSocketConnected()
 {
+    qDebug("Websocket connected");
     _haNextMessageId = 1;
 }
 
@@ -54,13 +62,15 @@ void HomeAssistantService::OnWebSocketDisconnected()
     _pingTimer->stop();
     _haNextMessageId = 0;
     _haConnectionState = HAConnectionState::DISCONNECTED;
+    qDebug("Websocket diconnected");
     emit Disconnected();
 }
 
 void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message)
 {
-    auto jDoc = QJsonDocument::fromJson(message.toUtf8());
+    qDebug() << "Websocket text message received: " << message;
 
+    auto jDoc = QJsonDocument::fromJson(message.toUtf8());
     switch (_haConnectionState)
     {
     case HAConnectionState::CONNECTING:
@@ -83,7 +93,7 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
     case HAConnectionState::AUTHENTICATING:
         if (jDoc["type"].toString() == "auth_ok")
         {
-            qDebug() << "Connected to Home Assistant, version " << jDoc["ha_version"].toString();
+            qInfo("Connected to Home Assistant. Version %s", jDoc["ha_version"].toString().toUtf8().constData());
             _haConnectionState = HAConnectionState::CONNECTED;
             _pingTimer->start();
             emit Connected();
@@ -99,11 +109,9 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
         {
             emit EventReceived(jDoc["id"].toInt(), jDoc["event"].toObject());
         }
-        else if (jDoc["type"].toString() == "pong")
-        {
-            qDebug() << "Pong received: " << jDoc["id"].toInt();
-        }
         break;
+    default:
+        qCritical() << "Unexpected state" << _haConnectionState;
     }
 }
 
@@ -155,6 +163,7 @@ int HomeAssistantService::SubscribeToEvents(const QString& eventType)
 void HomeAssistantService::SendJsonObject(const QJsonObject& obj)
 {
     auto message = QString::fromUtf8(QJsonDocument(obj).toJson(QJsonDocument::Compact));
+    qDebug() << "Sending websocket text message:" << message;
     _webSocket->sendTextMessage(message);
     _webSocket->flush();
 }

@@ -1,9 +1,9 @@
 #include "TrayViewModel.h"
-#include <QGuiApplication>
+#include <QCoreApplication>
 #include <QJsonArray>
+#include <algorithm>
 #include "HomeAssistantService.h"
 #include "WinApi.h"
-#include <algorithm>
 
 static const QString HUMIDIFIER_ENTITY_ID = "switch.humidifier";
 static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
@@ -22,6 +22,7 @@ void TrayViewModel::QuitApplication()
 
 void TrayViewModel::SetHumidifierState(bool on)
 {
+    qInfo() << "Setting humidifier state to" << (on ? "on" : "off");
     _haService->CallService("switch", QString("turn_%1").arg(on ? "on" : "off"), HUMIDIFIER_ENTITY_ID);
 }
 
@@ -32,6 +33,7 @@ bool TrayViewModel::GetHumidifierState()
 
 void TrayViewModel::SetTestPlugState(bool on)
 {
+    qInfo() << "Setting test plug state to" << (on ? "on" : "off");
     _haService->CallService("switch", QString("turn_%1").arg(on ? "on" : "off"), TESTPLUG_ENTITY_ID);
 }
 
@@ -104,6 +106,7 @@ void TrayViewModel::OnHAEventReceived(int id, const QJsonObject& event)
             if (newState != _testPlugState)
             {
                 _testPlugState = newState;
+                qInfo() << "Test plug state changed to" << (newState ? "on" : "off");
                 emit TestPlugStateChanged(newState);
             }
         }
@@ -112,6 +115,7 @@ void TrayViewModel::OnHAEventReceived(int id, const QJsonObject& event)
             if (newState != _humidifierState)
             {
                 _humidifierState = newState;
+                qInfo() << "Humidifier state changed to" << (newState ? "on" : "off");
                 emit HumidifierStateChanged(newState);
             }
         }
