@@ -8,9 +8,13 @@
 HomeAssistantService::HomeAssistantService(QObject* parent) : QObject(parent)
 {
     _webSocket = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this);
+    _pingTimer = new QTimer(this);
+    _pingTimer->setInterval(5000);
+
     QObject::connect(_webSocket, &QWebSocket::connected, this, &HomeAssistantService::OnWebSocketConnected);
     QObject::connect(_webSocket, &QWebSocket::disconnected, this, &HomeAssistantService::OnWebSocketDisconnected);
     QObject::connect(_webSocket, &QWebSocket::textMessageReceived, this, &HomeAssistantService::OnWebSocketTextMessageReceived);
+    QObject::connect(_pingTimer, &QTimer::timeout, this, &HomeAssistantService::OnPingTimerTimeout);
 }
 
 HomeAssistantService::~HomeAssistantService()
@@ -36,7 +40,6 @@ void HomeAssistantService::Disconnect()
     case HAConnectionState::AUTHENTICATING:
     case HAConnectionState::CONNECTED:
         _webSocket->close();
-        _haConnectionState = HAConnectionState::DISCONNECTED;
         break;
     }
 }
@@ -48,7 +51,9 @@ void HomeAssistantService::OnWebSocketConnected()
 
 void HomeAssistantService::OnWebSocketDisconnected()
 {
+    _pingTimer->stop();
     _haNextMessageId = 0;
+    _haConnectionState = HAConnectionState::DISCONNECTED;
     emit Disconnected();
 }
 
@@ -80,6 +85,7 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
         {
             qDebug() << "Connected to Home Assistant, version " << jDoc["ha_version"].toString();
             _haConnectionState = HAConnectionState::CONNECTED;
+            _pingTimer->start();
             emit Connected();
         }
         break;
@@ -93,8 +99,20 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
         {
             emit EventReceived(jDoc["id"].toInt(), jDoc["event"].toObject());
         }
+        else if (jDoc["type"].toString() == "pong")
+        {
+            qDebug() << "Pong received: " << jDoc["id"].toInt();
+        }
         break;
     }
+}
+
+void HomeAssistantService::OnPingTimerTimeout()
+{
+    QJsonObject jObj;
+    jObj["type"] = "ping";
+
+    SendCommand(jObj);
 }
 
 int HomeAssistantService::CallService(const QString& domain, const QString& service, const QJsonObject& target, const QJsonObject& serviceData)
@@ -149,3 +167,4 @@ int HomeAssistantService::SendCommand(const QJsonObject& obj)
     SendJsonObject(commandObj);
     return id;
 }
+

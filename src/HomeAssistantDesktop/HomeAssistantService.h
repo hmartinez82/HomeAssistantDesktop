@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QJsonObject>
+#include <QTimer>
 
 class QWebSocket;
 
@@ -47,6 +48,8 @@ private slots:
 
     void OnWebSocketTextMessageReceived(const QString& message);
 
+    void OnPingTimerTimeout();
+
 private:
     enum class HAConnectionState
     {
@@ -57,6 +60,8 @@ private:
     };
 
     QPointer<QWebSocket> _webSocket;
+
+    QPointer<QTimer> _pingTimer;
 
     HAConnectionState _haConnectionState = HAConnectionState::DISCONNECTED;
 
