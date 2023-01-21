@@ -13,7 +13,7 @@ HomeAssistantService::HomeAssistantService(QObject* parent) : QObject(parent)
 {
     _webSocket = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this);
     _pingTimer = new QTimer(this);
-    _pingTimer->setInterval(5000);
+    _pingTimer->setInterval(1* 60000);
 
     QObject::connect(_webSocket, &QWebSocket::connected, this, &HomeAssistantService::OnWebSocketConnected);
     QObject::connect(_webSocket, &QWebSocket::disconnected, this, &HomeAssistantService::OnWebSocketDisconnected);

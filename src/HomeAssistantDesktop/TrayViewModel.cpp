@@ -67,7 +67,7 @@ void TrayViewModel::OnHAResultReceived(int id, bool success, const QJsonValue& r
         auto it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
             return v["entity_id"].toString() == TESTPLUG_ENTITY_ID;
         });
-        if (it != end(entities))
+        if (it != cend(entities))
         {
             auto newState = (*it)[QLatin1String("state")].toString() == "on";
             if (newState != _testPlugState)
@@ -81,7 +81,7 @@ void TrayViewModel::OnHAResultReceived(int id, bool success, const QJsonValue& r
             return v["entity_id"].toString() == HUMIDIFIER_ENTITY_ID;
         });
 
-        if (it != end(entities))
+        if (it != cend(entities))
         {
             auto newState = (*it)[QLatin1String("state")].toString() == "on";
             if (newState != _humidifierState)
