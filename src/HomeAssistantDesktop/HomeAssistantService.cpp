@@ -7,18 +7,26 @@
 #include "WinApi.h"
 #include <QDebug>
 
-static const auto s_haWebSocketURL = "ws://192.168.1.3:8123/api/websocket";
+static const auto HOMEASSISTANT_WS_URL = "ws://192.168.1.3:8123/api/websocket";
+static const auto PING_TIMER = 60;
+static const auto RECONNECT_TIMER = 15;
 
 HomeAssistantService::HomeAssistantService(QObject* parent) : QObject(parent)
 {
     _webSocket = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this);
     _pingTimer = new QTimer(this);
-    _pingTimer->setInterval(1* 60000);
+    _pingTimer->setInterval(PING_TIMER * 1000);
+
+    _reconnectTimer = new QTimer(this);
+    _reconnectTimer->setInterval(RECONNECT_TIMER * 1000);
+    _reconnectTimer->setSingleShot(true);
 
     QObject::connect(_webSocket, &QWebSocket::connected, this, &HomeAssistantService::OnWebSocketConnected);
     QObject::connect(_webSocket, &QWebSocket::disconnected, this, &HomeAssistantService::OnWebSocketDisconnected);
     QObject::connect(_webSocket, &QWebSocket::textMessageReceived, this, &HomeAssistantService::OnWebSocketTextMessageReceived);
+    QObject::connect(_webSocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this, &HomeAssistantService::OnWebSocketError);
     QObject::connect(_pingTimer, &QTimer::timeout, this, &HomeAssistantService::OnPingTimerTimeout);
+    QObject::connect(_reconnectTimer, &QTimer::timeout, this, &HomeAssistantService::OnReconnectTimerTimeout);
 }
 
 HomeAssistantService::~HomeAssistantService()
@@ -31,8 +39,8 @@ void HomeAssistantService::Connect()
     switch (_haConnectionState)
     {
     case HAConnectionState::DISCONNECTED:
-        qDebug("Connecting to %s", s_haWebSocketURL);
-        _webSocket->open(QUrl(s_haWebSocketURL));
+        qDebug("Connecting to %s", HOMEASSISTANT_WS_URL);
+        _webSocket->open(QUrl(HOMEASSISTANT_WS_URL));
         _haConnectionState = HAConnectionState::CONNECTING;
         return;
     }
@@ -64,6 +72,8 @@ void HomeAssistantService::OnWebSocketDisconnected()
     _haConnectionState = HAConnectionState::DISCONNECTED;
     qDebug("Websocket diconnected");
     emit Disconnected();
+
+    _reconnectTimer->start();
 }
 
 void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message)
@@ -115,12 +125,28 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
     }
 }
 
+void HomeAssistantService::OnWebSocketError(QAbstractSocket::SocketError)
+{
+    qCritical() << "Websocket error:" << _webSocket->errorString();
+}
+
 void HomeAssistantService::OnPingTimerTimeout()
 {
     QJsonObject jObj;
     jObj["type"] = "ping";
 
     SendCommand(jObj);
+}
+
+void HomeAssistantService::OnReconnectTimerTimeout()
+{
+    if (_haConnectionState == HAConnectionState::DISCONNECTED ||
+        _haConnectionState == HAConnectionState::CONNECTING)
+    {
+        _haConnectionState = HAConnectionState::DISCONNECTED;
+        _reconnectTimer->start();
+        Reconnect();
+    }
 }
 
 int HomeAssistantService::CallService(const QString& domain, const QString& service, const QJsonObject& target, const QJsonObject& serviceData)
@@ -175,5 +201,11 @@ int HomeAssistantService::SendCommand(const QJsonObject& obj)
     commandObj["id"] = id;
     SendJsonObject(commandObj);
     return id;
+}
+
+void HomeAssistantService::Reconnect()
+{
+    qInfo() << "Attempting to reconnect...";
+    Connect();
 }
 

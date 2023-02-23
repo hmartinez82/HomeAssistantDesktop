@@ -11,6 +11,7 @@ static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
 TrayViewModel::TrayViewModel(HomeAssistantService* haService, QObject *parent) : _haService(haService), QObject{parent}
 {
     QObject::connect(_haService, &HomeAssistantService::Connected, this, &TrayViewModel::OnHAConnected);
+    QObject::connect(_haService, &HomeAssistantService::Disconnected, this, &TrayViewModel::OnHADisconnected);
     QObject::connect(_haService, &HomeAssistantService::ResultReceived, this, &TrayViewModel::OnHAResultReceived);
     QObject::connect(_haService, &HomeAssistantService::EventReceived, this, &TrayViewModel::OnHAEventReceived);
 }
@@ -49,6 +50,13 @@ void TrayViewModel::OnHAConnected()
 
     // Load current state
     _fetchStateCommandId = _haService->FetchStates();
+
+    emit HomeAsssitantConnectionStateChanged(true);
+}
+
+void TrayViewModel::OnHADisconnected()
+{
+    emit HomeAsssitantConnectionStateChanged(false);
 }
 
 void TrayViewModel::OnHAResultReceived(int id, bool success, const QJsonValue& result)

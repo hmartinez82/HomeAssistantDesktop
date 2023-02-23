@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include <QAbstractSocket>
 #include <QPointer>
 #include <QJsonObject>
 #include <QTimer>
@@ -57,13 +58,19 @@ private slots:
 
     void OnWebSocketTextMessageReceived(const QString& message);
 
+    void OnWebSocketError(QAbstractSocket::SocketError error);
+
     void OnPingTimerTimeout();
+
+    void OnReconnectTimerTimeout();
 
 private:
 
     QPointer<QWebSocket> _webSocket;
 
     QPointer<QTimer> _pingTimer;
+
+    QPointer<QTimer> _reconnectTimer;
 
     HAConnectionState _haConnectionState = HAConnectionState::DISCONNECTED;
 
@@ -72,5 +79,7 @@ private:
     void SendJsonObject(const QJsonObject& obj);
 
     int SendCommand(const QJsonObject& obj);
+
+    void Reconnect();
 };
 

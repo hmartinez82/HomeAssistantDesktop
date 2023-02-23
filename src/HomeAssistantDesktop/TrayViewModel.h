@@ -27,9 +27,13 @@ signals:
 
     void TestPlugStateChanged(bool state);
 
+    void HomeAsssitantConnectionStateChanged(bool connected);
+
 private slots:
 
     void OnHAConnected();
+
+    void OnHADisconnected();
 
     void OnHAResultReceived(int id, bool success, const QJsonValue& result);
 

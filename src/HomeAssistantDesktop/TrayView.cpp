@@ -13,32 +13,39 @@ TrayView::TrayView(TrayViewModel* viewModel, QObject *parent) : QObject{parent},
 
 void TrayView::InitializeComponents()
 {
-    auto humidifierAction = new QAction("Humidifier");
+    auto humidifierAction = new QAction("Humidifier", this);
     humidifierAction->setCheckable(true);
     humidifierAction->setChecked(_viewModel->GetHumidifierState());
     connect(humidifierAction, &QAction::triggered, this, &TrayView::OnHumidifierActionToggled);
-    connect(_viewModel, &TrayViewModel::HumidifierStateChanged, humidifierAction, &QAction::setChecked);
 
-    auto testPlugAction = new QAction("Test Plug");
+
+    auto testPlugAction = new QAction("Test Plug", this);
     testPlugAction->setCheckable(true);
     testPlugAction->setChecked(_viewModel->GetTestPlugState());
     connect(testPlugAction, &QAction::triggered, this, &TrayView::OnTestPlugActionToggled);
-    connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
 
-    auto quitAction = new QAction("Quit");
+    auto quitAction = new QAction("Quit", this);
     connect(quitAction, &QAction::triggered, this, &TrayView::OnQuitActionTriggered);
 
-    auto menu = new QMenu();
-    menu->addAction(humidifierAction);
-    menu->addAction(testPlugAction);
-    menu->addSeparator();
-    menu->addAction(quitAction);
+    _connectedMenu.addAction(humidifierAction);
+    _connectedMenu.addAction(testPlugAction);
+    _connectedMenu.addSeparator();
+    _connectedMenu.addAction(quitAction);
 
-    auto icon = qApp->style()->standardIcon(QStyle::SP_FileDialogListView);
+    _disconnectedMenu.addAction("Connecting...");
+    _disconnectedMenu.addSeparator();
+    _disconnectedMenu.addAction(quitAction);
 
-    auto trayIcon = new QSystemTrayIcon(icon, this);
-    trayIcon->setContextMenu(menu);
-    trayIcon->show();
+    _connectedIcon = qApp->style()->standardIcon(QStyle::SP_FileDialogListView);
+    _disconnectedIcon = qApp->style()->standardIcon(QStyle::SP_MessageBoxWarning);
+
+    _sysTrayIcon = new QSystemTrayIcon(_disconnectedIcon, this);
+    _sysTrayIcon->setContextMenu(&_disconnectedMenu);
+    _sysTrayIcon->show();
+
+    connect(_viewModel, &TrayViewModel::HumidifierStateChanged, humidifierAction, &QAction::setChecked);
+    connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
+    connect(_viewModel, &TrayViewModel::HomeAsssitantConnectionStateChanged, this, &TrayView::OnConnectionStateChanged);
 }
 
 void TrayView::OnQuitActionTriggered(bool)
@@ -54,4 +61,11 @@ void TrayView::OnHumidifierActionToggled(bool checked)
 void TrayView::OnTestPlugActionToggled(bool checked)
 {
     _viewModel->SetTestPlugState(checked);
+}
+
+void TrayView::OnConnectionStateChanged(bool connected)
+{
+    _sysTrayIcon->setIcon(connected ? _connectedIcon : _disconnectedIcon);
+    _sysTrayIcon->setContextMenu(nullptr);
+    _sysTrayIcon->setContextMenu(connected ? &_connectedMenu : &_disconnectedMenu);
 }

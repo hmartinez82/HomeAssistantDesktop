@@ -2,8 +2,11 @@
 #define TRAYVIEW_H
 
 #include <QObject>
+#include <QMenu>
 #include <QPointer>
+#include <QIcon>
 
+class QSystemTrayIcon;
 class TrayViewModel;
 
 class TrayView : public QObject
@@ -21,8 +24,20 @@ private slots:
 
     void OnTestPlugActionToggled(bool);
 
+    void OnConnectionStateChanged(bool connected);
+
 private:
     QPointer<TrayViewModel> _viewModel;
+
+    QPointer<QSystemTrayIcon> _sysTrayIcon;
+
+    QMenu _connectedMenu;
+
+    QMenu _disconnectedMenu;
+
+    QIcon _connectedIcon;
+
+    QIcon _disconnectedIcon;
 
     void InitializeComponents();
 };
