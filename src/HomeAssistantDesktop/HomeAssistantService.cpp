@@ -1,11 +1,10 @@
 #include "HomeAssistantService.h"
-#include <QWebSocket>
-#include <QUrl>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QMetaEnum>
+#include <QUrl>
+#include <QWebSocket>
 #include "WinApi.h"
-#include <QDebug>
 
 static const auto HOMEASSISTANT_WS_URL = "ws://192.168.1.3:8123/api/websocket";
 static const auto PING_TIMER = 60;
@@ -208,4 +207,3 @@ void HomeAssistantService::Reconnect()
     qInfo() << "Attempting to reconnect...";
     Connect();
 }
-
