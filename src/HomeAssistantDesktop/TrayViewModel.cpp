@@ -7,6 +7,7 @@
 
 static const QString HUMIDIFIER_ENTITY_ID = "switch.humidifier";
 static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
+static const QString BEDROOMLIGHT_ETNTITY_ID = "switch.bedroom_light";
 
 TrayViewModel::TrayViewModel(HomeAssistantService* haService, QObject *parent) : _haService(haService), QObject{parent}
 {
@@ -41,6 +42,17 @@ void TrayViewModel::SetTestPlugState(bool on)
 bool TrayViewModel::GetTestPlugState()
 {
     return _testPlugState;
+}
+
+void TrayViewModel::SetBedroomLightState(bool on)
+{
+    qInfo() << "Setting bedroom light state to" << (on ? "on" : "off");
+    _haService->CallService("switch", QString("turn_%1").arg(on ? "on" : "off"), BEDROOMLIGHT_ETNTITY_ID);
+}
+
+bool TrayViewModel::GetBedroomLightState()
+{
+    return _bedroomLightState;
 }
 
 void TrayViewModel::OnHAConnected()
@@ -96,6 +108,20 @@ void TrayViewModel::OnHAResultReceived(int id, bool success, const QJsonValue& r
             {
                 _humidifierState = newState;
                 emit HumidifierStateChanged(newState);
+            }
+        }
+
+        it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
+            return v["entity_id"].toString() == BEDROOMLIGHT_ETNTITY_ID;
+            });
+
+        if (it != cend(entities))
+        {
+            auto newState = (*it)[QLatin1String("state")].toString() == "on";
+            if (newState != _bedroomLightState)
+            {
+                _bedroomLightState = newState;
+                emit BedroomLightStateChanged(newState);
             }
         }
     }

@@ -18,11 +18,13 @@ public:
 signals:
 
 private slots:
-    void OnQuitActionTriggered(bool);
+    void OnQuitActionTriggered(bool checked);
 
-    void OnHumidifierActionToggled(bool);
+    void OnHumidifierActionToggled(bool checked);
 
-    void OnTestPlugActionToggled(bool);
+    void OnTestPlugActionToggled(bool checked);
+
+    void OnBedroomLightActionToggled(bool checked);
 
     void OnConnectionStateChanged(bool connected);
 

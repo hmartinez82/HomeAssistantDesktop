@@ -27,8 +27,14 @@ void TrayView::InitializeComponents()
     auto quitAction = new QAction("Quit", this);
     connect(quitAction, &QAction::triggered, this, &TrayView::OnQuitActionTriggered);
 
+    auto bedroomLightAction = new QAction("Bedroom Light", this);
+    bedroomLightAction->setCheckable(true);
+    bedroomLightAction->setChecked(_viewModel->GetBedroomLightState());
+    connect(bedroomLightAction, &QAction::triggered, this, &TrayView::OnBedroomLightActionToggled);
+
     _connectedMenu.addAction(humidifierAction);
     _connectedMenu.addAction(testPlugAction);
+    _connectedMenu.addAction(bedroomLightAction);
     _connectedMenu.addSeparator();
     _connectedMenu.addAction(quitAction);
 
@@ -61,6 +67,11 @@ void TrayView::OnHumidifierActionToggled(bool checked)
 void TrayView::OnTestPlugActionToggled(bool checked)
 {
     _viewModel->SetTestPlugState(checked);
+}
+
+void TrayView::OnBedroomLightActionToggled(bool checked)
+{
+    _viewModel->SetBedroomLightState(checked);
 }
 
 void TrayView::OnConnectionStateChanged(bool connected)
