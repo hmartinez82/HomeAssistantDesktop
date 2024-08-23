@@ -26,12 +26,18 @@ public:
 
     bool GetBedroomLightState();
 
+    void SetKitchenLightState(bool on);
+
+    bool GetKitchenLightState();
+
 signals:
     void HumidifierStateChanged(bool state);
 
     void TestPlugStateChanged(bool state);
 
     void BedroomLightStateChanged(bool state);
+
+    void KitchenLightStateChanged(bool state);
 
     void HomeAsssitantConnectionStateChanged(bool connected);
 
@@ -57,6 +63,8 @@ private:
     bool _testPlugState = false;
 
     bool _bedroomLightState = false;
+
+    bool _kitchenLightState = false;
 };
 
 #endif // TRAYVIEWMODEL_H

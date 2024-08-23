@@ -18,7 +18,6 @@ void TrayView::InitializeComponents()
     humidifierAction->setChecked(_viewModel->GetHumidifierState());
     connect(humidifierAction, &QAction::triggered, this, &TrayView::OnHumidifierActionToggled);
 
-
     auto testPlugAction = new QAction("Test Plug", this);
     testPlugAction->setCheckable(true);
     testPlugAction->setChecked(_viewModel->GetTestPlugState());
@@ -32,9 +31,15 @@ void TrayView::InitializeComponents()
     bedroomLightAction->setChecked(_viewModel->GetBedroomLightState());
     connect(bedroomLightAction, &QAction::triggered, this, &TrayView::OnBedroomLightActionToggled);
 
+    auto kitchenLightAction = new QAction("Kitchen Light", this);
+    kitchenLightAction->setCheckable(true);
+    kitchenLightAction->setChecked(_viewModel->GetKitchenLightState());
+    connect(kitchenLightAction, &QAction::triggered, this, &TrayView::OnKitchenLightActionToggled);
+
     _connectedMenu.addAction(humidifierAction);
     _connectedMenu.addAction(testPlugAction);
     _connectedMenu.addAction(bedroomLightAction);
+    _connectedMenu.addAction(kitchenLightAction);
     _connectedMenu.addSeparator();
     _connectedMenu.addAction(quitAction);
 
@@ -72,6 +77,11 @@ void TrayView::OnTestPlugActionToggled(bool checked)
 void TrayView::OnBedroomLightActionToggled(bool checked)
 {
     _viewModel->SetBedroomLightState(checked);
+}
+
+void TrayView::OnKitchenLightActionToggled(bool checked)
+{
+    _viewModel->SetKitchenLightState(checked);
 }
 
 void TrayView::OnConnectionStateChanged(bool connected)

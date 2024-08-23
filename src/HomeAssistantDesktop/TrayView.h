@@ -26,6 +26,8 @@ private slots:
 
     void OnBedroomLightActionToggled(bool checked);
 
+    void OnKitchenLightActionToggled(bool checked);
+
     void OnConnectionStateChanged(bool connected);
 
 private:

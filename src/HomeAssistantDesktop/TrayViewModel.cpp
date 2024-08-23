@@ -7,7 +7,8 @@
 
 static const QString HUMIDIFIER_ENTITY_ID = "switch.humidifier";
 static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
-static const QString BEDROOMLIGHT_ETNTITY_ID = "switch.bedroom_light";
+static const QString BEDROOMLIGHT_ENTITY_ID = "light.bedroom_light";
+static const QString KITCHENLIGHT_ENTITY_ID = "light.kitchen";
 
 TrayViewModel::TrayViewModel(HomeAssistantService* haService, QObject *parent) : _haService(haService), QObject{parent}
 {
@@ -47,12 +48,23 @@ bool TrayViewModel::GetTestPlugState()
 void TrayViewModel::SetBedroomLightState(bool on)
 {
     qInfo() << "Setting bedroom light state to" << (on ? "on" : "off");
-    _haService->CallService("switch", QString("turn_%1").arg(on ? "on" : "off"), BEDROOMLIGHT_ETNTITY_ID);
+    _haService->CallService("light", QString("turn_%1").arg(on ? "on" : "off"), BEDROOMLIGHT_ENTITY_ID);
 }
 
 bool TrayViewModel::GetBedroomLightState()
 {
     return _bedroomLightState;
+}
+
+bool TrayViewModel::GetKitchenLightState()
+{
+    return _kitchenLightState;
+}
+
+void TrayViewModel::SetKitchenLightState(bool on)
+{
+    qInfo() << "Setting kitchen light state to" << (on ? "on" : "off");
+    _haService->CallService("light", QString("turn_%1").arg(on ? "on" : "off"), KITCHENLIGHT_ENTITY_ID);
 }
 
 void TrayViewModel::OnHAConnected()
@@ -112,7 +124,7 @@ void TrayViewModel::OnHAResultReceived(int id, bool success, const QJsonValue& r
         }
 
         it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
-            return v["entity_id"].toString() == BEDROOMLIGHT_ETNTITY_ID;
+            return v["entity_id"].toString() == BEDROOMLIGHT_ENTITY_ID;
             });
 
         if (it != cend(entities))
