@@ -30,6 +30,8 @@ private slots:
 
     void OnConnectionStateChanged(bool connected);
 
+    void ShowNotification(const QString& title, const QString& message);
+
 private:
     QPointer<TrayViewModel> _viewModel;
 

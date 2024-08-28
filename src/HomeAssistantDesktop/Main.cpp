@@ -20,6 +20,8 @@ void HandleWinApiError(const QString& message, int errorCode)
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setApplicationName("HomeAssistantDesktop");
+
     SetupLogger(QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/HomeAssistant.log"));
 
     WinApi_Shutdown();
@@ -53,6 +55,7 @@ int main(int argc, char *argv[])
         QObject::connect(&haService, &HomeAssistantService::ServiceErrored, HandleWinApiError);
 
         haService.Connect();
+        haService.StartNotificationServer();
 
         ret = a.exec();
     }

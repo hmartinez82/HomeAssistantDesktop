@@ -5,6 +5,7 @@
 #include <QUrl>
 #include <QWebSocket>
 #include "WinApi.h"
+#include "NotificationServer.h"
 
 static const auto HOMEASSISTANT_WS_URL = "ws://192.168.1.3:8123/api/websocket";
 static const auto PING_TIMER = 60;
@@ -13,6 +14,7 @@ static const auto RECONNECT_TIMER = 15;
 HomeAssistantService::HomeAssistantService(QObject* parent) : QObject(parent)
 {
     _webSocket = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this);
+    _notificationServer = new NotificationServer(this);
     _pingTimer = new QTimer(this);
     _pingTimer->setInterval(PING_TIMER * 1000);
 
@@ -24,6 +26,7 @@ HomeAssistantService::HomeAssistantService(QObject* parent) : QObject(parent)
     QObject::connect(_webSocket, &QWebSocket::disconnected, this, &HomeAssistantService::OnWebSocketDisconnected);
     QObject::connect(_webSocket, &QWebSocket::textMessageReceived, this, &HomeAssistantService::OnWebSocketTextMessageReceived);
     QObject::connect(_webSocket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this, &HomeAssistantService::OnWebSocketError);
+    QObject::connect(_notificationServer, &NotificationServer::NotificationReceived, this, &HomeAssistantService::NotificationReceived);
     QObject::connect(_pingTimer, &QTimer::timeout, this, &HomeAssistantService::OnPingTimerTimeout);
     QObject::connect(_reconnectTimer, &QTimer::timeout, this, &HomeAssistantService::OnReconnectTimerTimeout);
 }
@@ -56,6 +59,11 @@ void HomeAssistantService::Disconnect()
         return;
     }
     qCritical() << "Unexpected state" << _haConnectionState;
+}
+
+bool HomeAssistantService::StartNotificationServer()
+{
+    return _notificationServer->Start();
 }
 
 void HomeAssistantService::OnWebSocketConnected()

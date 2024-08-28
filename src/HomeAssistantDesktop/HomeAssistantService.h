@@ -6,6 +6,7 @@
 #include <QTimer>
 
 class QWebSocket;
+class NotificationServer;
 
 class HomeAssistantService : public QObject
 {
@@ -29,6 +30,8 @@ public:
 
     void Disconnect();
 
+    bool StartNotificationServer();
+
     int CallService(const QString& domain, const QString& service,
                     const QJsonObject& target = QJsonObject(),
                      const QJsonObject& serviceData = QJsonObject());
@@ -50,6 +53,8 @@ signals:
 
     void ServiceErrored(const QString& message, int code);
 
+    void NotificationReceived(const QString& title, const QString& message);
+
 private slots:
 
     void OnWebSocketConnected();
@@ -67,6 +72,8 @@ private slots:
 private:
 
     QPointer<QWebSocket> _webSocket;
+
+    QPointer<NotificationServer> _notificationServer;
 
     QPointer<QTimer> _pingTimer;
 

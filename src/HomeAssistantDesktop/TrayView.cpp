@@ -57,6 +57,7 @@ void TrayView::InitializeComponents()
     connect(_viewModel, &TrayViewModel::HumidifierStateChanged, humidifierAction, &QAction::setChecked);
     connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
     connect(_viewModel, &TrayViewModel::HomeAsssitantConnectionStateChanged, this, &TrayView::OnConnectionStateChanged);
+    connect(_viewModel, &TrayViewModel::NotificationReceived, this, &TrayView::ShowNotification);
 }
 
 void TrayView::OnQuitActionTriggered(bool)
@@ -89,4 +90,9 @@ void TrayView::OnConnectionStateChanged(bool connected)
     _sysTrayIcon->setIcon(connected ? _connectedIcon : _disconnectedIcon);
     _sysTrayIcon->setContextMenu(nullptr);
     _sysTrayIcon->setContextMenu(connected ? &_connectedMenu : &_disconnectedMenu);
+}
+
+void TrayView::ShowNotification(const QString& title, const QString& message)
+{
+    _sysTrayIcon->showMessage(title, message);
 }

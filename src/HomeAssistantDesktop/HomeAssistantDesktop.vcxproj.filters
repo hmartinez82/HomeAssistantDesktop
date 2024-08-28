@@ -49,6 +49,9 @@
     <ClCompile Include="Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NotificationServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TrayView.h">
@@ -58,6 +61,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="HomeAssistantService.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="NotificationServer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

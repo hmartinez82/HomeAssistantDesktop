@@ -41,6 +41,8 @@ signals:
 
     void HomeAsssitantConnectionStateChanged(bool connected);
 
+    void NotificationReceived(const QString& title, const QString& message);
+
 private slots:
 
     void OnHAConnected();
