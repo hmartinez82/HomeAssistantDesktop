@@ -27,7 +27,7 @@ void SetupLogger(const QString& logFile)
 
 void CustomMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-    auto localMsg = msg.toLocal8Bit();
+    auto localMsg = msg.toUtf8();
     spdlog::source_loc loc(context.file, context.line, context.function);
 
     switch (type) {

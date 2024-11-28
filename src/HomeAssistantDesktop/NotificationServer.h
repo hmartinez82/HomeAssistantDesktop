@@ -16,9 +16,12 @@ public:
 signals:
 	void NotificationReceived(const QString& title, const QString& message);
 
+private slots:
+	void ProcessRequest(const QHttpServerRequest& request, QHttpServerResponder& responder);
+
 private:
 	QHttpServer _server;
 
-	void ProcessRequest(const QHttpServerRequest& request, QHttpServerResponder&& responder);
+	
 };
 
