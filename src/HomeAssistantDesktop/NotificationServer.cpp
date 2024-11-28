@@ -11,23 +11,40 @@ NotificationServer::NotificationServer(QObject* parent) : QObject(parent)
 {
 	std::function<void(const QHttpServerRequest&, QHttpServerResponder&&)> handler = 
 		bind(&NotificationServer::ProcessRequest, this, _1, _2);
-	bool b = _server.route("/", QHttpServerRequest::Method::Post, handler);
-	qDebug() << b;
+	auto routed = _server.route("/", QHttpServerRequest::Method::Post, handler);
+	if (!routed)
+	{
+		qWarning() << "Failed to route POST requests to /";
+	}
+	else
+	{
+		qInfo() << "Routed POST requests to /";
+	}
 }
 
 
 bool NotificationServer::Start()
 {
-	return _server.listen(QHostAddress("192.168.1.10"), 9123) != 0;
-
+	auto ret = _server.listen(QHostAddress("192.168.1.10"), 9123) != 0;
+	if (!ret)
+	{
+		qWarning() << "Failed to start REST server to receive Home Assistant Notifications";
+	}
+	else
+	{
+		qInfo() << "Started REST server to receive Home Assistant Notifications";
+	}
+	return ret;
 }
 
 void NotificationServer::ProcessRequest(const QHttpServerRequest& request, QHttpServerResponder&& responder)
 {
-	auto body = QString::fromUtf8(request.body());
-	auto parameters = request.body().split('&');
+	const auto& body = request.body();
+
+	qDebug() << "Received notification payload: " << body;
 
 	QMap<QString, QString> map;
+	auto parameters = body.split('&');
 	for (const auto& param : parameters)
 	{
 		auto paramN = param.split('=');
