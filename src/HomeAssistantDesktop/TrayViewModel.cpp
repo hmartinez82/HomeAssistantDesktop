@@ -196,5 +196,33 @@ void TrayViewModel::OnHAEventReceived(int id, const QJsonObject& event)
                 emit HumidifierStateChanged(newState);
             }
         }
-    }
+		else if (entity == BEDROOMLIGHT_ENTITY_ID)
+		{
+			if (newState != _bedroomLightState)
+			{
+				_bedroomLightState = newState;
+				qInfo() << "Bedroom light state changed to" << (newState ? "on" : "off");
+				emit BedroomLightStateChanged(newState);
+			}
+		}
+		else if (entity == KITCHENLIGHT_ENTITY_ID)
+		{
+			if (newState != _kitchenLightState)
+			{
+				_kitchenLightState = newState;
+				qInfo() << "Kitchen light state changed to" << (newState ? "on" : "off");
+				emit KitchenLightStateChanged(newState);
+			}
+		}
+		else if (entity == CO2_SENSOR_ENTITY_ID)
+		{
+			auto newValue = data["new_state"][QLatin1String("state")].toString().toDouble();
+			if (newValue != _co2SensorValue)
+			{
+				_co2SensorValue = newValue;
+				qInfo() << "CO2 sensor value changed to" << newValue;
+				emit CO2ValueChanged(newValue);
+			}
+		}
+	}
 }

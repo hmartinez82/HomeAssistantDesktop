@@ -37,6 +37,7 @@ void TrayView::InitializeComponents()
     connect(kitchenLightAction, &QAction::triggered, this, &TrayView::OnKitchenLightActionToggled);
 
     auto co2Action = new QAction("CO₂");
+	co2Action->setEnabled(false);
     _connectedMenu.addAction(co2Action);
     _connectedMenu.addSeparator();
     _connectedMenu.addAction(humidifierAction);
