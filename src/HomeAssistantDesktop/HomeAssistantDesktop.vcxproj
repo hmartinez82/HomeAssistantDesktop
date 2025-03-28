@@ -56,7 +56,7 @@
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="QtSettings">
-    <QtInstall>6.8.2_msvc2022_64</QtInstall>
+    <QtInstall>6.8.2_msvc2022_arm64</QtInstall>
     <QtModules>core;gui;network;widgets;websockets;httpserver</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
     <QMakeExtraArgs>
@@ -68,7 +68,7 @@
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="QtSettings">
-    <QtInstall>6.8.2_msvc2022_64</QtInstall>
+    <QtInstall>6.8.2_msvc2022_arm64</QtInstall>
     <QtModules>core;gui;network;widgets;websockets;httpserver</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
     <QMakeExtraArgs>
@@ -207,6 +207,8 @@
     <ResourceCompile Include="HomeAssistantDesktop.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ConfigurationService.cpp" />
+    <ClCompile Include="DualMenuSystemTrayIcon.cpp" />
     <ClCompile Include="HomeAssistantService.cpp" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -224,6 +226,8 @@
     <QtMoc Include="HomeAssistantService.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="DualMenuSystemTrayIcon.h" />
+    <QtMoc Include="ConfigurationService.h" />
     <ClInclude Include="Logging.h" />
     <QtMoc Include="NotificationServer.h" />
   </ItemGroup>

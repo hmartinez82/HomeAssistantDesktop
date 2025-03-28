@@ -52,6 +52,12 @@
     <ClCompile Include="NotificationServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DualMenuSystemTrayIcon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TrayView.h">
@@ -64,6 +70,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="NotificationServer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DualMenuSystemTrayIcon.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ConfigurationService.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

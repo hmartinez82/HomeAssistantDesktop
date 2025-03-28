@@ -4,14 +4,16 @@
 #include <QMetaEnum>
 #include <QUrl>
 #include <QWebSocket>
-#include "WinApi.h"
 #include "NotificationServer.h"
+#include "ConfigurationService.h"
+#include "WinApi.h"
 
 static const auto HOMEASSISTANT_WS_URL = "ws://192.168.1.3:8123/api/websocket";
 static const auto PING_TIMER = 60;
 static const auto RECONNECT_TIMER = 15;
 
-HomeAssistantService::HomeAssistantService(QObject* parent) : QObject(parent)
+HomeAssistantService::HomeAssistantService(ConfigurationService* configurationService, QObject* parent) :
+    _configurationService(configurationService), QObject(parent)
 {
     _webSocket = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this);
     _notificationServer = new NotificationServer(this);
@@ -94,10 +96,9 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
         if (jDoc["type"].toString() == "auth_required")
         {
             try {
-                auto token = WinApi_ReadAuthToken();
                 QJsonObject jObj;
                 jObj["type"] = "auth";
-                jObj["access_token"] = QString::fromStdString(token);
+                jObj["access_token"] = _configurationService->GetAuthToken();;
                 SendJsonObject(jObj);
                 _haConnectionState = HAConnectionState::AUTHENTICATING;
             }

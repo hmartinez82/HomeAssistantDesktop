@@ -7,6 +7,7 @@
 
 class QWebSocket;
 class NotificationServer;
+class ConfigurationService;
 
 class HomeAssistantService : public QObject
 {
@@ -22,7 +23,7 @@ public:
     };
     Q_ENUM(HAConnectionState)
 
-    HomeAssistantService(QObject* parent = nullptr);
+    HomeAssistantService(ConfigurationService* configurationService, QObject* parent = nullptr);
 
     ~HomeAssistantService();
 
@@ -74,6 +75,8 @@ private:
     QPointer<QWebSocket> _webSocket;
 
     QPointer<NotificationServer> _notificationServer;
+
+	QPointer<ConfigurationService> _configurationService;
 
     QPointer<QTimer> _pingTimer;
 

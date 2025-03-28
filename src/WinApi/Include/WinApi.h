@@ -7,6 +7,8 @@ void WinApi_Initialize();
 
 void WinApi_Shutdown();
 
+bool WinApi_IsAuthTokenSet();
+
 std::string WinApi_ReadAuthToken();
 
 void WinApi_StoreAuthToken(const std::string& token);
