@@ -4,13 +4,14 @@
 #include <QObject>
 #include <QPointer>
 
+class ConfigurationService;
 class HomeAssistantService;
 
 class TrayViewModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit TrayViewModel(HomeAssistantService* haService, QObject *parent = nullptr);
+    TrayViewModel(ConfigurationService* configurationService, HomeAssistantService* haService, QObject *parent = nullptr);
 
     void QuitApplication();
 
@@ -29,6 +30,8 @@ public:
     void SetKitchenLightState(bool on);
 
     bool GetKitchenLightState();
+
+    bool UpdateAuthToken();
 
 signals:
     void HumidifierStateChanged(bool state);
@@ -56,6 +59,8 @@ private slots:
     void OnHAEventReceived(int id, const QJsonObject& event);
 
 private:
+    QPointer<ConfigurationService> _configurationService;
+
     QPointer<HomeAssistantService> _haService;
 
     int _fetchStateCommandId = 0;

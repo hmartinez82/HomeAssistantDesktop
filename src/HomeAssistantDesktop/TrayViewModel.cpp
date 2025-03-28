@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <algorithm>
 #include "HomeAssistantService.h"
+#include "ConfigurationService.h"
 #include "WinApi.h"
 
 static const QString HUMIDIFIER_ENTITY_ID = "switch.humidifier";
@@ -11,7 +12,8 @@ static const QString BEDROOMLIGHT_ENTITY_ID = "light.bedroom_light";
 static const QString KITCHENLIGHT_ENTITY_ID = "light.kitchen";
 static const QString CO2_SENSOR_ENTITY_ID = "sensor.view_plus_carbon_dioxide";
 
-TrayViewModel::TrayViewModel(HomeAssistantService* haService, QObject *parent) : _haService(haService), QObject{parent}
+TrayViewModel::TrayViewModel(ConfigurationService* configurationService, HomeAssistantService* haService, QObject *parent) :
+  _configurationService(configurationService), _haService(haService), QObject{parent}
 {
     QObject::connect(_haService, &HomeAssistantService::Connected, this, &TrayViewModel::OnHAConnected);
     QObject::connect(_haService, &HomeAssistantService::Disconnected, this, &TrayViewModel::OnHADisconnected);
@@ -61,6 +63,11 @@ bool TrayViewModel::GetBedroomLightState()
 bool TrayViewModel::GetKitchenLightState()
 {
     return _kitchenLightState;
+}
+
+bool TrayViewModel::UpdateAuthToken()
+{
+	return _configurationService->InputAuthToken();
 }
 
 void TrayViewModel::SetKitchenLightState(bool on)
