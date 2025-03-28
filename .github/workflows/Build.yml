@@ -7,26 +7,37 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
+    env:
+      QT_VERSION: 6.8.3
+      QT_VSTOOLS_VERSION: 3.3.1
 
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Add msbuild to PATH
+      - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
           vs-version: 17
           msbuild-architecture: x64
 
+      - name: Add QtMSBuild
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest https://download.qt.io/official_releases/vsaddin/${Env:QT_VSTOOLS_VERSION}/qt-vsaddin-msbuild-${Env:QT_VSTOOLS_VERSION}.zip `
+                            -OutFile vstools-msbuild.zip
+          Expand-Archive -Path .\vstools-msbuild.zip -DestinationPath .\MsBuild -Force
+
       - name: Setup Qt
         uses: jurplel/install-qt-action@v4.1.1
         with:
-          version: 6.8.3
+          version: ${{ env.QT_VERSION }}
           host: windows
           target: desktop
           arch: win64_msvc2022_64
-          modules: 'qt5compat qtactiveqt qthttpserver qtimageformats qtnetworkauth qtwebsockets'
+          modules: 'qtactiveqt qthttpserver qtwebsockets'
 
       - name: NuGet restore
         shell: pwsh
@@ -35,8 +46,10 @@ jobs:
 
       - name: Build
         shell: pwsh
+        env:
+          QTMSBUILD: ${{ github.workspace }}\MsBuild
         run: |
-          msbuild src\HomeAssistantDesktop.sln /p:Configuration=Release /p:Platform=x64
+          msbuild src\HomeAssistantDesktop.sln /p:Configuration=Release /p:Platform=x64 /p:QtInstall=$Env:QT_ROOT_DIR
 
       - name: Add binary dependencies
         shell: pwsh
