@@ -43,6 +43,8 @@ signals:
 
     void NotificationReceived(const QString& title, const QString& message);
 
+    void CO2ValueChanged(float value);
+
 private slots:
 
     void OnHAConnected();
@@ -67,6 +69,8 @@ private:
     bool _bedroomLightState = false;
 
     bool _kitchenLightState = false;
+
+    double _co2SensorValue = 0;
 };
 
 #endif // TRAYVIEWMODEL_H

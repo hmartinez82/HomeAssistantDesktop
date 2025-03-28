@@ -30,6 +30,8 @@ private slots:
 
     void OnConnectionStateChanged(bool connected);
 
+    void OnCO2ValueChanged(float value);
+
     void ShowNotification(const QString& title, const QString& message);
 
 private:

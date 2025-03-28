@@ -1,4 +1,4 @@
-#include "TrayView.h"
+﻿#include "TrayView.h"
 #include <QAction>
 #include <QApplication>
 #include <QMenu>
@@ -36,6 +36,9 @@ void TrayView::InitializeComponents()
     kitchenLightAction->setChecked(_viewModel->GetKitchenLightState());
     connect(kitchenLightAction, &QAction::triggered, this, &TrayView::OnKitchenLightActionToggled);
 
+    auto co2Action = new QAction("CO₂");
+    _connectedMenu.addAction(co2Action);
+    _connectedMenu.addSeparator();
     _connectedMenu.addAction(humidifierAction);
     _connectedMenu.addAction(testPlugAction);
     _connectedMenu.addAction(bedroomLightAction);
@@ -58,6 +61,9 @@ void TrayView::InitializeComponents()
     connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
     connect(_viewModel, &TrayViewModel::HomeAsssitantConnectionStateChanged, this, &TrayView::OnConnectionStateChanged);
     connect(_viewModel, &TrayViewModel::NotificationReceived, this, &TrayView::ShowNotification);
+    connect(_viewModel, &TrayViewModel::CO2ValueChanged, [=] (float value)  {
+        co2Action->setText(QString("CO₂ (%1) ppm").arg(value, 0, 'f', 1));
+    });
 }
 
 void TrayView::OnQuitActionTriggered(bool)
@@ -90,6 +96,11 @@ void TrayView::OnConnectionStateChanged(bool connected)
     _sysTrayIcon->setIcon(connected ? _connectedIcon : _disconnectedIcon);
     _sysTrayIcon->setContextMenu(nullptr);
     _sysTrayIcon->setContextMenu(connected ? &_connectedMenu : &_disconnectedMenu);
+}
+
+void TrayView::OnCO2ValueChanged(float value)
+{
+
 }
 
 void TrayView::ShowNotification(const QString& title, const QString& message)

@@ -9,6 +9,7 @@ static const QString HUMIDIFIER_ENTITY_ID = "switch.humidifier";
 static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
 static const QString BEDROOMLIGHT_ENTITY_ID = "light.bedroom_light";
 static const QString KITCHENLIGHT_ENTITY_ID = "light.kitchen";
+static const QString CO2_SENSOR_ENTITY_ID = "sensor.view_plus_carbon_dioxide";
 
 TrayViewModel::TrayViewModel(HomeAssistantService* haService, QObject *parent) : _haService(haService), QObject{parent}
 {
@@ -135,6 +136,35 @@ void TrayViewModel::OnHAResultReceived(int id, bool success, const QJsonValue& r
             {
                 _bedroomLightState = newState;
                 emit BedroomLightStateChanged(newState);
+            }
+        }
+
+        it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
+            return v["entity_id"].toString() == KITCHENLIGHT_ENTITY_ID;
+            });
+
+        if (it != cend(entities))
+        {
+            auto newState = (*it)[QLatin1String("state")].toString() == "on";
+            if (newState != _kitchenLightState)
+            {
+                _kitchenLightState = newState;
+                emit KitchenLightStateChanged(newState);
+            }
+        }
+
+        it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
+            return v["entity_id"].toString() == CO2_SENSOR_ENTITY_ID;
+            });
+
+        if (it != cend(entities))
+        {
+            auto newState = (*it)[QLatin1String("state")].toString();
+            auto newValue = newState.toDouble();
+            if (newValue != _co2SensorValue)
+            {
+                _co2SensorValue = newValue;
+                emit CO2ValueChanged(newValue);
             }
         }
     }
