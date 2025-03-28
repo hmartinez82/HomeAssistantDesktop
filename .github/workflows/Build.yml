@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          vs-version: 17
+          msbuild-architecture: x64
+
+      - name: Setup Qt
+        uses: jurplel/install-qt-action@v4.1.1
+        with:
+          version: 6.8.3
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          modules: 'qt5compat qtactiveqt qthttpserver qtimageformats qtnetworkauth qtwebsockets'
+
+      - name: NuGet restore
+        shell: pwsh
+        run: |
+          nuget restore src\HomeAssistantDesktop.sln
+
+      - name: Build
+        shell: pwsh
+        run: |
+          msbuild src\HomeAssistantDesktop.sln /p:Configuration=Release /p:Platform=x64
+
+      - name: Add binary dependencies
+        shell: pwsh
+        run: |
+          cd bin\x64\Release
+          windeployqt --release --no-translations --no-system-d3d-compiler --no-system-dxc-compiler --no-compiler-runtime .\HomeAssistantDesktop.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HomeAssistantDesktop
+          path: bin\x64\Release
+          retention-days: 10
