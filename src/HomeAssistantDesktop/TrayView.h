@@ -8,6 +8,7 @@
 
 class QSystemTrayIcon;
 class TrayViewModel;
+class DualMenuSystemTrayIcon;
 
 class TrayView : public QObject
 {
@@ -32,16 +33,22 @@ private slots:
 
     void OnCO2ValueChanged(float value);
 
+    void OnSetApiTokenActionTriggered();
+
     void ShowNotification(const QString& title, const QString& message);
 
 private:
     QPointer<TrayViewModel> _viewModel;
 
-    QPointer<QSystemTrayIcon> _sysTrayIcon;
+    QPointer<DualMenuSystemTrayIcon> _sysTrayIcon;
+
+    QPointer<QAction> _co2Action;
 
     QMenu _connectedMenu;
 
     QMenu _disconnectedMenu;
+
+    QMenu _configurationMenu;
 
     QIcon _connectedIcon;
 

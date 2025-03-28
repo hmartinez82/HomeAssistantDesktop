@@ -5,6 +5,7 @@
 #include <QSystemTrayIcon>
 #include <QStyle>
 #include "TrayViewModel.h"
+#include "DualMenuSystemTrayIcon.h"
 
 TrayView::TrayView(TrayViewModel* viewModel, QObject *parent) : QObject{parent}, _viewModel(viewModel)
 {
@@ -36,9 +37,10 @@ void TrayView::InitializeComponents()
     kitchenLightAction->setChecked(_viewModel->GetKitchenLightState());
     connect(kitchenLightAction, &QAction::triggered, this, &TrayView::OnKitchenLightActionToggled);
 
-    auto co2Action = new QAction("CO₂");
-	co2Action->setEnabled(false);
-    _connectedMenu.addAction(co2Action);
+    _co2Action = new QAction("CO₂");
+    _co2Action->setEnabled(false);
+
+    _connectedMenu.addAction(_co2Action);
     _connectedMenu.addSeparator();
     _connectedMenu.addAction(humidifierAction);
     _connectedMenu.addAction(testPlugAction);
@@ -51,20 +53,24 @@ void TrayView::InitializeComponents()
     _disconnectedMenu.addSeparator();
     _disconnectedMenu.addAction(quitAction);
 
+	auto setApiTokenAction = new QAction("Set HA API Token", this);
+    connect(setApiTokenAction, &QAction::triggered, this, &TrayView::OnSetApiTokenActionTriggered);
+
+	_configurationMenu.addAction(setApiTokenAction);
+
     _connectedIcon = qApp->style()->standardIcon(QStyle::SP_FileDialogListView);
     _disconnectedIcon = qApp->style()->standardIcon(QStyle::SP_MessageBoxWarning);
 
-    _sysTrayIcon = new QSystemTrayIcon(_disconnectedIcon, this);
-    _sysTrayIcon->setContextMenu(&_disconnectedMenu);
+    _sysTrayIcon = new DualMenuSystemTrayIcon(_disconnectedIcon, this);
+    _sysTrayIcon->setMenu(&_disconnectedMenu);
+	_sysTrayIcon->setAlternateMenu(&_configurationMenu, Qt::ControlModifier); // Use Ctrl+Right Click to show connected menu
     _sysTrayIcon->show();
 
     connect(_viewModel, &TrayViewModel::HumidifierStateChanged, humidifierAction, &QAction::setChecked);
     connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
     connect(_viewModel, &TrayViewModel::HomeAsssitantConnectionStateChanged, this, &TrayView::OnConnectionStateChanged);
     connect(_viewModel, &TrayViewModel::NotificationReceived, this, &TrayView::ShowNotification);
-    connect(_viewModel, &TrayViewModel::CO2ValueChanged, [=] (float value)  {
-        co2Action->setText(QString("CO₂ (%1) ppm").arg(value, 0, 'f', 1));
-    });
+	connect(_viewModel, &TrayViewModel::CO2ValueChanged, this, &TrayView::OnCO2ValueChanged);
 }
 
 void TrayView::OnQuitActionTriggered(bool)
@@ -95,13 +101,17 @@ void TrayView::OnKitchenLightActionToggled(bool checked)
 void TrayView::OnConnectionStateChanged(bool connected)
 {
     _sysTrayIcon->setIcon(connected ? _connectedIcon : _disconnectedIcon);
-    _sysTrayIcon->setContextMenu(nullptr);
-    _sysTrayIcon->setContextMenu(connected ? &_connectedMenu : &_disconnectedMenu);
+    _sysTrayIcon->setMenu(connected ? &_connectedMenu : &_disconnectedMenu);
 }
 
 void TrayView::OnCO2ValueChanged(float value)
 {
+    _co2Action->setText(QString("CO₂ (%1) ppm").arg(value, 0, 'f', 1));
+}
 
+void TrayView::OnSetApiTokenActionTriggered()
+{
+	_viewModel->UpdateAuthToken();
 }
 
 void TrayView::ShowNotification(const QString& title, const QString& message)
