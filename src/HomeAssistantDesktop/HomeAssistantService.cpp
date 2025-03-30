@@ -1,4 +1,5 @@
 #include "HomeAssistantService.h"
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QMetaEnum>
@@ -116,7 +117,7 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
             _pingTimer->start();
 
             _fetchStateCommandId = 0;
-            _stateChangedEventId = 0;
+            _entitiyChangedEventId = 0;
             emit Connected();
         }
         break;
@@ -126,7 +127,7 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
             auto success = jDoc["success"].toBool();
             emit ResultReceived(success, success ? jDoc["result"] : jDoc["error"]);
         }
-        else if (jDoc["type"].toString() == "event" && jDoc["id"].toInt() == _stateChangedEventId)
+        else if (jDoc["type"].toString() == "event" && jDoc["id"].toInt() == _entitiyChangedEventId)
         {
             emit EventReceived(jDoc["event"].toObject());
         }
@@ -189,12 +190,12 @@ void HomeAssistantService::FetchStates()
     _fetchStateCommandId = SendCommand(jObj);
 }
 
-void HomeAssistantService::SubscribeToEvents(const QString& eventType)
+void HomeAssistantService::SubscribeToEntities(const QStringList& entities)
 {
     QJsonObject jObj;
-    jObj["type"] = "subscribe_events";
-    jObj["event_type"] = eventType;
-    _stateChangedEventId = SendCommand(jObj);
+    jObj["type"] = "subscribe_entities";
+    jObj["entity_ids"] = QJsonArray::fromStringList(entities);
+    _entitiyChangedEventId = SendCommand(jObj);
 }
 
 void HomeAssistantService::SendJsonObject(const QJsonObject& obj)

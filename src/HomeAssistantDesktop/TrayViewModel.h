@@ -54,8 +54,6 @@ private slots:
 
     void OnHADisconnected();
 
-    void OnHAResultReceived(bool success, const QJsonValue& result);
-
     void OnHAEventReceived(const QJsonObject& event);
 
 private:

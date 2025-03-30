@@ -11,13 +11,13 @@ static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
 static const QString BEDROOMLIGHT_ENTITY_ID = "light.bedroom_light";
 static const QString KITCHENLIGHT_ENTITY_ID = "light.kitchen";
 static const QString CO2_SENSOR_ENTITY_ID = "sensor.view_plus_carbon_dioxide";
+static const QStringList ENTITIES = { HUMIDIFIER_ENTITY_ID, TESTPLUG_ENTITY_ID, BEDROOMLIGHT_ENTITY_ID, KITCHENLIGHT_ENTITY_ID, CO2_SENSOR_ENTITY_ID };
 
 TrayViewModel::TrayViewModel(ConfigurationService* configurationService, HomeAssistantService* haService, QObject *parent) :
   _configurationService(configurationService), _haService(haService), QObject{parent}
 {
     QObject::connect(_haService, &HomeAssistantService::Connected, this, &TrayViewModel::OnHAConnected);
     QObject::connect(_haService, &HomeAssistantService::Disconnected, this, &TrayViewModel::OnHADisconnected);
-    QObject::connect(_haService, &HomeAssistantService::ResultReceived, this, &TrayViewModel::OnHAResultReceived);
     QObject::connect(_haService, &HomeAssistantService::EventReceived, this, &TrayViewModel::OnHAEventReceived);
     QObject::connect(_haService, &HomeAssistantService::NotificationReceived, this, &TrayViewModel::NotificationReceived);
 }
@@ -78,11 +78,8 @@ void TrayViewModel::SetKitchenLightState(bool on)
 
 void TrayViewModel::OnHAConnected()
 {
-    // Listen to state changed events
-    _haService->SubscribeToEvents("state_changed");
-
-    // Load current state
-    _haService->FetchStates();
+    // Listen to entities events
+    _haService->SubscribeToEntities(ENTITIES);
 
     emit HomeAsssitantConnectionStateChanged(true);
 }
@@ -92,37 +89,38 @@ void TrayViewModel::OnHADisconnected()
     emit HomeAsssitantConnectionStateChanged(false);
 }
 
-void TrayViewModel::OnHAResultReceived(bool success, const QJsonValue& result)
+void TrayViewModel::OnHAEventReceived(const QJsonObject& event)
 {
-    using namespace std;
-
-    if (!success)
+    auto data = event.constBegin();
+    if (data == event.constEnd())
     {
         return;
     }
+	auto firstChild = data->toObject();
 
-    auto entities = result.toArray();
-
-    auto it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
-        return v["entity_id"].toString() == TESTPLUG_ENTITY_ID;
-    });
-    if (it != cend(entities))
+    if (firstChild.contains(TESTPLUG_ENTITY_ID))
     {
-        auto newState = (*it)[QLatin1String("state")].toString() == "on";
-        if (newState != _testPlugState)
+        auto entity = firstChild[TESTPLUG_ENTITY_ID].toObject();
+        if (entity.contains("+"))
         {
-            _testPlugState = newState;
-            emit TestPlugStateChanged(newState);
+            entity = entity["+"].toObject();
         }
+		auto newState = entity["s"].toString() == "on";
+		if (newState != _testPlugState)
+		{
+			_testPlugState = newState;
+			emit TestPlugStateChanged(newState);
+		}
     }
 
-    it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
-        return v["entity_id"].toString() == HUMIDIFIER_ENTITY_ID;
-    });
-
-    if (it != cend(entities))
+    if (firstChild.contains(HUMIDIFIER_ENTITY_ID))
     {
-        auto newState = (*it)[QLatin1String("state")].toString() == "on";
+        auto entity = firstChild[HUMIDIFIER_ENTITY_ID].toObject();
+        if (entity.contains("+"))
+        {
+            entity = entity["+"].toObject();
+        }
+        auto newState = entity["s"].toString() == "on";
         if (newState != _humidifierState)
         {
             _humidifierState = newState;
@@ -130,100 +128,48 @@ void TrayViewModel::OnHAResultReceived(bool success, const QJsonValue& result)
         }
     }
 
-    it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
-        return v["entity_id"].toString() == BEDROOMLIGHT_ENTITY_ID;
-        });
-
-    if (it != cend(entities))
+    if (firstChild.contains(BEDROOMLIGHT_ENTITY_ID))
     {
-        auto newState = (*it)[QLatin1String("state")].toString() == "on";
-        if (newState != _bedroomLightState)
+        auto entity = firstChild[BEDROOMLIGHT_ENTITY_ID].toObject();
+        if (entity.contains("+"))
         {
-            _bedroomLightState = newState;
-            emit BedroomLightStateChanged(newState);
+            entity = entity["+"].toObject();
         }
-    }
-
-    it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
-        return v["entity_id"].toString() == KITCHENLIGHT_ENTITY_ID;
-        });
-
-    if (it != cend(entities))
-    {
-        auto newState = (*it)[QLatin1String("state")].toString() == "on";
-        if (newState != _kitchenLightState)
-        {
-            _kitchenLightState = newState;
-            emit KitchenLightStateChanged(newState);
-        }
-    }
-
-    it = find_if(cbegin(entities), cend(entities), [&](const QJsonValue& v) {
-        return v["entity_id"].toString() == CO2_SENSOR_ENTITY_ID;
-        });
-
-    if (it != cend(entities))
-    {
-        auto newState = (*it)[QLatin1String("state")].toString();
-        auto newValue = newState.toDouble();
-        if (newValue != _co2SensorValue)
-        {
-            _co2SensorValue = newValue;
-            emit CO2ValueChanged(newValue);
-        }
-    }
-}
-
-void TrayViewModel::OnHAEventReceived(const QJsonObject& event)
-{
-    auto data = event["data"].toObject();
-    auto newState = data["new_state"][QLatin1String("state")].toString() == "on";
-    auto entity = data["entity_id"].toString();
-
-    if (entity == TESTPLUG_ENTITY_ID)
-    {
-        if (newState != _testPlugState)
-        {
-            _testPlugState = newState;
-            qInfo() << "Test plug state changed to" << (newState ? "on" : "off");
-            emit TestPlugStateChanged(newState);
-        }
-    }
-    else if (entity == HUMIDIFIER_ENTITY_ID)
-    {
-        if (newState != _humidifierState)
-        {
-            _humidifierState = newState;
-            qInfo() << "Humidifier state changed to" << (newState ? "on" : "off");
-            emit HumidifierStateChanged(newState);
-        }
-    }
-	else if (entity == BEDROOMLIGHT_ENTITY_ID)
-	{
+        auto newState = entity["s"].toString() == "on";
 		if (newState != _bedroomLightState)
 		{
 			_bedroomLightState = newState;
-			qInfo() << "Bedroom light state changed to" << (newState ? "on" : "off");
 			emit BedroomLightStateChanged(newState);
 		}
-	}
-	else if (entity == KITCHENLIGHT_ENTITY_ID)
+    }
+
+	if (firstChild.contains(KITCHENLIGHT_ENTITY_ID))
 	{
+        auto entity = firstChild[KITCHENLIGHT_ENTITY_ID].toObject();
+        if (entity.contains("+"))
+        {
+            entity = entity["+"].toObject();
+        }
+        auto newState = entity["s"].toString() == "on";
 		if (newState != _kitchenLightState)
 		{
 			_kitchenLightState = newState;
-			qInfo() << "Kitchen light state changed to" << (newState ? "on" : "off");
 			emit KitchenLightStateChanged(newState);
 		}
 	}
-	else if (entity == CO2_SENSOR_ENTITY_ID)
-	{
-		auto newValue = data["new_state"][QLatin1String("state")].toString().toDouble();
+
+    if (firstChild.contains(CO2_SENSOR_ENTITY_ID))
+    {
+        auto entity = firstChild[CO2_SENSOR_ENTITY_ID].toObject();
+        if (entity.contains("+"))
+        {
+            entity = entity["+"].toObject();
+        }
+        auto newValue = entity["s"].toString().toDouble();
 		if (newValue != _co2SensorValue)
 		{
 			_co2SensorValue = newValue;
-			qInfo() << "CO2 sensor value changed to" << newValue;
 			emit CO2ValueChanged(newValue);
 		}
-	}
+    }
 }

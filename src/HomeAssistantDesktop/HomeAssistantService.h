@@ -41,7 +41,7 @@ public:
 
     void FetchStates();
 
-    void SubscribeToEvents(const QString& eventType);
+    void SubscribeToEntities(const QStringList& entities);
 
 signals:
     void Connected();
@@ -88,7 +88,7 @@ private:
 
     int _fetchStateCommandId = 0;
 
-    int _stateChangedEventId = 0;
+    int _entitiyChangedEventId = 0;
 
     void SendJsonObject(const QJsonObject& obj);
 
