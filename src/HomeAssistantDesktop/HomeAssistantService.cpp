@@ -114,18 +114,21 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
             qInfo("Connected to Home Assistant. Version %s", jDoc["ha_version"].toString().toUtf8().constData());
             _haConnectionState = HAConnectionState::CONNECTED;
             _pingTimer->start();
+
+            _fetchStateCommandId = 0;
+            _stateChangedEventId = 0;
             emit Connected();
         }
         break;
     case HAConnectionState::CONNECTED:
-        if (jDoc["type"].toString() == "result")
+        if (jDoc["type"].toString() == "result" && jDoc["id"].toInt() ==_fetchStateCommandId)
         {
             auto success = jDoc["success"].toBool();
-            emit ResultReceived(jDoc["id"].toInt(), success, success ? jDoc["result"] : jDoc["error"]);
+            emit ResultReceived(success, success ? jDoc["result"] : jDoc["error"]);
         }
-        else if (jDoc["type"].toString() == "event")
+        else if (jDoc["type"].toString() == "event" && jDoc["id"].toInt() == _stateChangedEventId)
         {
-            emit EventReceived(jDoc["id"].toInt(), jDoc["event"].toObject());
+            emit EventReceived(jDoc["event"].toObject());
         }
         break;
     default:
@@ -179,19 +182,19 @@ int HomeAssistantService::CallService(const QString& domain, const QString& serv
     return CallService(domain, service, QJsonObject{ {"entity_id", targetEntity} }, serviceData);
 }
 
-int HomeAssistantService::FetchStates()
+void HomeAssistantService::FetchStates()
 {
     QJsonObject jObj;
     jObj["type"] = "get_states";
-    return SendCommand(jObj);
+    _fetchStateCommandId = SendCommand(jObj);
 }
 
-int HomeAssistantService::SubscribeToEvents(const QString& eventType)
+void HomeAssistantService::SubscribeToEvents(const QString& eventType)
 {
     QJsonObject jObj;
     jObj["type"] = "subscribe_events";
     jObj["event_type"] = eventType;
-    return SendCommand(jObj);
+    _stateChangedEventId = SendCommand(jObj);
 }
 
 void HomeAssistantService::SendJsonObject(const QJsonObject& obj)

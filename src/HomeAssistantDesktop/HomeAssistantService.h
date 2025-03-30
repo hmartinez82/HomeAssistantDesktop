@@ -39,18 +39,18 @@ public:
     int CallService(const QString& domain, const QString& service, const QString& targetEntity,
                     const QJsonObject& serviceData = QJsonObject());
 
-    int FetchStates();
+    void FetchStates();
 
-    int SubscribeToEvents(const QString& eventType);
+    void SubscribeToEvents(const QString& eventType);
 
 signals:
     void Connected();
 
     void Disconnected();
 
-    void ResultReceived(int id, bool success, const QJsonValue& result);
+    void ResultReceived(bool success, const QJsonValue& result);
 
-    void EventReceived(int id, const QJsonObject& event);
+    void EventReceived(const QJsonObject& event);
 
     void ServiceErrored(const QString& message, int code);
 
@@ -85,6 +85,10 @@ private:
     HAConnectionState _haConnectionState = HAConnectionState::DISCONNECTED;
 
     int _haNextMessageId = 0;
+
+    int _fetchStateCommandId = 0;
+
+    int _stateChangedEventId = 0;
 
     void SendJsonObject(const QJsonObject& obj);
 

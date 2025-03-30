@@ -54,18 +54,14 @@ private slots:
 
     void OnHADisconnected();
 
-    void OnHAResultReceived(int id, bool success, const QJsonValue& result);
+    void OnHAResultReceived(bool success, const QJsonValue& result);
 
-    void OnHAEventReceived(int id, const QJsonObject& event);
+    void OnHAEventReceived(const QJsonObject& event);
 
 private:
     QPointer<ConfigurationService> _configurationService;
 
     QPointer<HomeAssistantService> _haService;
-
-    int _fetchStateCommandId = 0;
-    
-    int _stateChangedEventId = 0;
 
     bool _humidifierState = false;
 
