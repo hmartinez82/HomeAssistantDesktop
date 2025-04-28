@@ -120,6 +120,12 @@ void HomeAssistantService::OnWebSocketTextMessageReceived(const QString& message
             _entitiyChangedEventId = 0;
             emit Connected();
         }
+		else if (jDoc["type"].toString() == "auth_invalid")
+		{
+			qCritical("Authentication failed. Invalid token.");
+			emit ServiceErrored("Authentication failed. Invalid token.", 0);
+			Disconnect();
+		}
         break;
     case HAConnectionState::CONNECTED:
         if (jDoc["type"].toString() == "result" && jDoc["id"].toInt() ==_fetchStateCommandId)
