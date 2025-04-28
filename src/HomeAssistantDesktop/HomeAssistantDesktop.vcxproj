@@ -51,24 +51,24 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.8.2_msvc2022_64</QtInstall>
+    <QtInstall>6.8.3_msvc2022_64</QtInstall>
     <QtModules>core;gui;network;widgets;websockets;httpserver</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="QtSettings">
-    <QtInstall>6.8.2_msvc2022_arm64</QtInstall>
+    <QtInstall>6.8.3_msvc2022_arm64</QtInstall>
     <QtModules>core;gui;network;widgets;websockets;httpserver</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
     <QMakeExtraArgs>
     </QMakeExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.8.2_msvc2022_64</QtInstall>
+    <QtInstall>6.8.3_msvc2022_64</QtInstall>
     <QtModules>core;gui;network;widgets;websockets;httpserver</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="QtSettings">
-    <QtInstall>6.8.2_msvc2022_arm64</QtInstall>
+    <QtInstall>6.8.3_msvc2022_arm64</QtInstall>
     <QtModules>core;gui;network;widgets;websockets;httpserver</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
     <QMakeExtraArgs>
