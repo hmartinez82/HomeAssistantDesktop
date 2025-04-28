@@ -66,11 +66,13 @@ void TrayView::InitializeComponents()
 	_sysTrayIcon->setAlternateMenu(&_configurationMenu, Qt::ControlModifier); // Use Ctrl+Right Click to show connected menu
     _sysTrayIcon->show();
 
-    connect(_viewModel, &TrayViewModel::HumidifierStateChanged, humidifierAction, &QAction::setChecked);
-    connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
     connect(_viewModel, &TrayViewModel::HomeAsssitantConnectionStateChanged, this, &TrayView::OnConnectionStateChanged);
     connect(_viewModel, &TrayViewModel::NotificationReceived, this, &TrayView::ShowNotification);
+    connect(_viewModel, &TrayViewModel::HumidifierStateChanged, humidifierAction, &QAction::setChecked);
+    connect(_viewModel, &TrayViewModel::TestPlugStateChanged, testPlugAction, &QAction::setChecked);
 	connect(_viewModel, &TrayViewModel::CO2ValueChanged, this, &TrayView::OnCO2ValueChanged);
+	connect(_viewModel, &TrayViewModel::BedroomLightStateChanged, bedroomLightAction, &QAction::setChecked);
+	connect(_viewModel, &TrayViewModel::KitchenLightStateChanged, kitchenLightAction, &QAction::setChecked);
 }
 
 void TrayView::OnQuitActionTriggered(bool)
