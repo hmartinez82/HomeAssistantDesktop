@@ -6,6 +6,7 @@
 
 class ConfigurationService;
 class HomeAssistantService;
+class QJsonObject;
 
 class TrayViewModel : public QObject
 {
@@ -70,6 +71,8 @@ private:
     bool _kitchenLightState = false;
 
     double _co2SensorValue = 0;
+
+    void EmitIfChanged(const QString& entityId, const QJsonObject& eventData, bool& currentState, void (TrayViewModel::* signal)(bool));
 };
 
 #endif // TRAYVIEWMODEL_H

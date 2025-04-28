@@ -98,65 +98,10 @@ void TrayViewModel::OnHAEventReceived(const QJsonObject& event)
     }
 	auto firstChild = data->toObject();
 
-    if (firstChild.contains(TESTPLUG_ENTITY_ID))
-    {
-        auto entity = firstChild[TESTPLUG_ENTITY_ID].toObject();
-        if (entity.contains("+"))
-        {
-            entity = entity["+"].toObject();
-        }
-		auto newState = entity["s"].toString() == "on";
-		if (newState != _testPlugState)
-		{
-			_testPlugState = newState;
-			emit TestPlugStateChanged(newState);
-		}
-    }
-
-    if (firstChild.contains(HUMIDIFIER_ENTITY_ID))
-    {
-        auto entity = firstChild[HUMIDIFIER_ENTITY_ID].toObject();
-        if (entity.contains("+"))
-        {
-            entity = entity["+"].toObject();
-        }
-        auto newState = entity["s"].toString() == "on";
-        if (newState != _humidifierState)
-        {
-            _humidifierState = newState;
-            emit HumidifierStateChanged(newState);
-        }
-    }
-
-    if (firstChild.contains(BEDROOMLIGHT_ENTITY_ID))
-    {
-        auto entity = firstChild[BEDROOMLIGHT_ENTITY_ID].toObject();
-        if (entity.contains("+"))
-        {
-            entity = entity["+"].toObject();
-        }
-        auto newState = entity["s"].toString() == "on";
-		if (newState != _bedroomLightState)
-		{
-			_bedroomLightState = newState;
-			emit BedroomLightStateChanged(newState);
-		}
-    }
-
-	if (firstChild.contains(KITCHENLIGHT_ENTITY_ID))
-	{
-        auto entity = firstChild[KITCHENLIGHT_ENTITY_ID].toObject();
-        if (entity.contains("+"))
-        {
-            entity = entity["+"].toObject();
-        }
-        auto newState = entity["s"].toString() == "on";
-		if (newState != _kitchenLightState)
-		{
-			_kitchenLightState = newState;
-			emit KitchenLightStateChanged(newState);
-		}
-	}
+	EmitIfChanged(TESTPLUG_ENTITY_ID, firstChild, _testPlugState, &TrayViewModel::TestPlugStateChanged);
+    EmitIfChanged(HUMIDIFIER_ENTITY_ID, firstChild, _humidifierState, &TrayViewModel::HumidifierStateChanged);
+    EmitIfChanged(BEDROOMLIGHT_ENTITY_ID, firstChild, _bedroomLightState, &TrayViewModel::BedroomLightStateChanged);
+    EmitIfChanged(KITCHENLIGHT_ENTITY_ID, firstChild, _kitchenLightState, &TrayViewModel::KitchenLightStateChanged);
 
     if (firstChild.contains(CO2_SENSOR_ENTITY_ID))
     {
@@ -171,5 +116,26 @@ void TrayViewModel::OnHAEventReceived(const QJsonObject& event)
 			_co2SensorValue = newValue;
 			emit CO2ValueChanged(newValue);
 		}
+    }
+}
+
+void TrayViewModel::EmitIfChanged(const QString& entityId, const QJsonObject& eventData, bool& currentState, void(TrayViewModel::* signal)(bool))
+{
+    if (eventData.contains(entityId))
+    {
+        auto entity = eventData[entityId].toObject();
+        if (entity.contains("+"))
+        {
+            entity = entity["+"].toObject();
+        }
+        if (entity.contains("s"))
+        {
+            auto newState = entity["s"].toString() == "on";
+            if (newState != currentState)
+            {
+                currentState = newState;
+                emit(this->*signal)(newState);
+            }
+        }
     }
 }
