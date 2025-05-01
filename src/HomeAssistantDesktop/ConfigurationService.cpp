@@ -1,12 +1,19 @@
 #include "ConfigurationService.h"
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QSettings>
+#include <QCoreApplication>
+#include <QDir>
 #include "WinApi.h"
+
+static const auto REG_VALUE_STARTUP = QStringLiteral("Home Assistant Desktop");
 
 ConfigurationService::ConfigurationService(QObject* parent) : QObject(parent)
 {
 	WinApi_Shutdown();
 	WinApi_Initialize();
+
+	_appPath = '"' % QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) % '"';
 }
 
 ConfigurationService::~ConfigurationService()
@@ -61,4 +68,35 @@ bool ConfigurationService::InputAuthToken()
 			return false;
 		}
 	} while (true);
+}
+
+bool ConfigurationService::GetStartWithWindows() const
+{
+	QSettings settings(R"(HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run)", QSettings::Registry64Format);
+	auto var = settings.value(REG_VALUE_STARTUP);
+	if (var.isValid())
+	{
+		return var.toString() == _appPath;
+	}
+	else
+	{
+		return false;
+	}
+	
+}
+
+void ConfigurationService::SetStartWithWindows(bool startWithWindows)
+{
+	QSettings settings(R"(HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run)", QSettings::Registry64Format);
+	if (startWithWindows)
+	{
+		if (settings.value(REG_VALUE_STARTUP) != _appPath)
+		{
+			settings.setValue(REG_VALUE_STARTUP, _appPath);
+		}
+	}
+	else
+	{
+		settings.remove(REG_VALUE_STARTUP);
+	}
 }

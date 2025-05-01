@@ -55,8 +55,13 @@ void TrayView::InitializeComponents()
 
 	auto setApiTokenAction = new QAction("Set HA API Token", this);
     connect(setApiTokenAction, &QAction::triggered, this, &TrayView::OnSetApiTokenActionTriggered);
+	auto startWithWindowsAction = new QAction("Start with Windows", this);
+	startWithWindowsAction->setChecked(_viewModel->GetStartWithWindows());
+    startWithWindowsAction->setCheckable(true);
+    connect(startWithWindowsAction, &QAction::triggered, this, &TrayView::OnStartWithWindowsActionTriggered);
 
 	_configurationMenu.addAction(setApiTokenAction);
+	_configurationMenu.addAction(startWithWindowsAction);
 
     _connectedIcon = qApp->style()->standardIcon(QStyle::SP_FileDialogListView);
     _disconnectedIcon = qApp->style()->standardIcon(QStyle::SP_MessageBoxWarning);
@@ -114,6 +119,11 @@ void TrayView::OnCO2ValueChanged(float value)
 void TrayView::OnSetApiTokenActionTriggered()
 {
 	_viewModel->UpdateAuthToken();
+}
+
+void TrayView::OnStartWithWindowsActionTriggered(bool checked)
+{
+    _viewModel->SetStartWithWindows(checked);
 }
 
 void TrayView::ShowNotification(const QString& title, const QString& message)

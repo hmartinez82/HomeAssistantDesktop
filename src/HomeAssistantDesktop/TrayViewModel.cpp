@@ -70,6 +70,16 @@ bool TrayViewModel::UpdateAuthToken()
 	return _configurationService->InputAuthToken();
 }
 
+bool TrayViewModel::GetStartWithWindows() const
+{
+	return _configurationService->GetStartWithWindows();
+}
+
+void TrayViewModel::SetStartWithWindows(bool startWithWindows)
+{
+	_configurationService->SetStartWithWindows(startWithWindows);
+}
+
 void TrayViewModel::SetKitchenLightState(bool on)
 {
     qInfo() << "Setting kitchen light state to" << (on ? "on" : "off");

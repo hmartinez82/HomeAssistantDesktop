@@ -18,5 +18,12 @@ public:
 	void SetAuthToken(const QString& token);
 
 	bool InputAuthToken();
+
+	bool GetStartWithWindows() const;
+
+	void SetStartWithWindows(bool startWithWindows);
+
+private:
+	QString _appPath;
 };
 

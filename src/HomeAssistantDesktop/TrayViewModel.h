@@ -34,6 +34,10 @@ public:
 
     bool UpdateAuthToken();
 
+    bool GetStartWithWindows() const;
+
+	void SetStartWithWindows(bool startWithWindows);
+
 signals:
     void HumidifierStateChanged(bool state);
 

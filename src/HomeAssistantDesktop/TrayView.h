@@ -35,6 +35,8 @@ private slots:
 
     void OnSetApiTokenActionTriggered();
 
+    void OnStartWithWindowsActionTriggered(bool checked);
+
     void ShowNotification(const QString& title, const QString& message);
 
 private:
