@@ -37,6 +37,11 @@ void TrayView::InitializeComponents()
     kitchenLightAction->setChecked(_viewModel->GetKitchenLightState());
     connect(kitchenLightAction, &QAction::triggered, this, &TrayView::OnKitchenLightActionToggled);
 
+    auto officeLightAction = new QAction("Office Light", this);
+    officeLightAction->setCheckable(true);
+    officeLightAction->setChecked(_viewModel->GetOfficeLightState());
+    connect(officeLightAction, &QAction::triggered, this, &TrayView::OnOfficeLightActionToggled);
+
     _co2Action = new QAction("CO₂");
     _co2Action->setEnabled(false);
 
@@ -46,6 +51,7 @@ void TrayView::InitializeComponents()
     _connectedMenu.addAction(testPlugAction);
     _connectedMenu.addAction(bedroomLightAction);
     _connectedMenu.addAction(kitchenLightAction);
+    _connectedMenu.addAction(officeLightAction);
     _connectedMenu.addSeparator();
     _connectedMenu.addAction(quitAction);
 
@@ -78,6 +84,7 @@ void TrayView::InitializeComponents()
 	connect(_viewModel, &TrayViewModel::CO2ValueChanged, this, &TrayView::OnCO2ValueChanged);
 	connect(_viewModel, &TrayViewModel::BedroomLightStateChanged, bedroomLightAction, &QAction::setChecked);
 	connect(_viewModel, &TrayViewModel::KitchenLightStateChanged, kitchenLightAction, &QAction::setChecked);
+    connect(_viewModel, &TrayViewModel::OfficeLightStateChanged, officeLightAction, &QAction::setChecked);
 }
 
 void TrayView::OnQuitActionTriggered(bool)
@@ -103,6 +110,11 @@ void TrayView::OnBedroomLightActionToggled(bool checked)
 void TrayView::OnKitchenLightActionToggled(bool checked)
 {
     _viewModel->SetKitchenLightState(checked);
+}
+
+void TrayView::OnOfficeLightActionToggled(bool checked)
+{
+    _viewModel->SetOfficeLightState(checked);
 }
 
 void TrayView::OnConnectionStateChanged(bool connected)

@@ -8,10 +8,16 @@
 
 static const QString HUMIDIFIER_ENTITY_ID = "switch.humidifier";
 static const QString TESTPLUG_ENTITY_ID = "switch.testplug";
-static const QString BEDROOMLIGHT_ENTITY_ID = "light.bedroom_light";
-static const QString KITCHENLIGHT_ENTITY_ID = "light.kitchen";
+static const QString BEDROOM_LIGHT_ENTITY_ID = "light.bedroom_light";
+static const QString KITCHEN_LIGHT_ENTITY_ID = "light.kitchen";
+static const QString OFFICE_LIGHT_ENTITY_ID = "light.office";
 static const QString CO2_SENSOR_ENTITY_ID = "sensor.view_plus_carbon_dioxide";
-static const QStringList ENTITIES = { HUMIDIFIER_ENTITY_ID, TESTPLUG_ENTITY_ID, BEDROOMLIGHT_ENTITY_ID, KITCHENLIGHT_ENTITY_ID, CO2_SENSOR_ENTITY_ID };
+static const QStringList ENTITIES = { HUMIDIFIER_ENTITY_ID,
+                                      TESTPLUG_ENTITY_ID,
+                                      BEDROOM_LIGHT_ENTITY_ID,
+                                      KITCHEN_LIGHT_ENTITY_ID,
+                                      OFFICE_LIGHT_ENTITY_ID,
+                                      CO2_SENSOR_ENTITY_ID };
 
 TrayViewModel::TrayViewModel(ConfigurationService* configurationService, HomeAssistantService* haService, QObject *parent) :
   _configurationService(configurationService), _haService(haService), QObject{parent}
@@ -52,7 +58,7 @@ bool TrayViewModel::GetTestPlugState()
 void TrayViewModel::SetBedroomLightState(bool on)
 {
     qInfo() << "Setting bedroom light state to" << (on ? "on" : "off");
-    _haService->CallService("light", QString("turn_%1").arg(on ? "on" : "off"), BEDROOMLIGHT_ENTITY_ID);
+    _haService->CallService("light", QString("turn_%1").arg(on ? "on" : "off"), BEDROOM_LIGHT_ENTITY_ID);
 }
 
 bool TrayViewModel::GetBedroomLightState()
@@ -60,9 +66,26 @@ bool TrayViewModel::GetBedroomLightState()
     return _bedroomLightState;
 }
 
+void TrayViewModel::SetKitchenLightState(bool on)
+{
+    qInfo() << "Setting kitchen light state to" << (on ? "on" : "off");
+    _haService->CallService("light", QString("turn_%1").arg(on ? "on" : "off"), KITCHEN_LIGHT_ENTITY_ID);
+}
+
 bool TrayViewModel::GetKitchenLightState()
 {
     return _kitchenLightState;
+}
+
+void TrayViewModel::SetOfficeLightState(bool on)
+{
+    qInfo() << "Setting office light state to" << (on ? "on" : "off");
+    _haService->CallService("light", QString("turn_%1").arg(on ? "on" : "off"), OFFICE_LIGHT_ENTITY_ID);
+}
+
+bool TrayViewModel::GetOfficeLightState()
+{
+    return _officeLightState;
 }
 
 bool TrayViewModel::UpdateAuthToken()
@@ -78,12 +101,6 @@ bool TrayViewModel::GetStartWithWindows() const
 void TrayViewModel::SetStartWithWindows(bool startWithWindows)
 {
 	_configurationService->SetStartWithWindows(startWithWindows);
-}
-
-void TrayViewModel::SetKitchenLightState(bool on)
-{
-    qInfo() << "Setting kitchen light state to" << (on ? "on" : "off");
-    _haService->CallService("light", QString("turn_%1").arg(on ? "on" : "off"), KITCHENLIGHT_ENTITY_ID);
 }
 
 void TrayViewModel::OnHAConnected()
@@ -110,8 +127,9 @@ void TrayViewModel::OnHAEventReceived(const QJsonObject& event)
 
 	EmitIfChanged(TESTPLUG_ENTITY_ID, firstChild, _testPlugState, &TrayViewModel::TestPlugStateChanged);
     EmitIfChanged(HUMIDIFIER_ENTITY_ID, firstChild, _humidifierState, &TrayViewModel::HumidifierStateChanged);
-    EmitIfChanged(BEDROOMLIGHT_ENTITY_ID, firstChild, _bedroomLightState, &TrayViewModel::BedroomLightStateChanged);
-    EmitIfChanged(KITCHENLIGHT_ENTITY_ID, firstChild, _kitchenLightState, &TrayViewModel::KitchenLightStateChanged);
+    EmitIfChanged(BEDROOM_LIGHT_ENTITY_ID, firstChild, _bedroomLightState, &TrayViewModel::BedroomLightStateChanged);
+    EmitIfChanged(KITCHEN_LIGHT_ENTITY_ID, firstChild, _kitchenLightState, &TrayViewModel::KitchenLightStateChanged);
+    EmitIfChanged(OFFICE_LIGHT_ENTITY_ID, firstChild, _officeLightState, &TrayViewModel::OfficeLightStateChanged);
 
     if (firstChild.contains(CO2_SENSOR_ENTITY_ID))
     {

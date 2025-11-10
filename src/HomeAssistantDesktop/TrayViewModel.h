@@ -32,6 +32,10 @@ public:
 
     bool GetKitchenLightState();
 
+	void SetOfficeLightState(bool on);
+
+	bool GetOfficeLightState();
+
     bool UpdateAuthToken();
 
     bool GetStartWithWindows() const;
@@ -46,6 +50,8 @@ signals:
     void BedroomLightStateChanged(bool state);
 
     void KitchenLightStateChanged(bool state);
+
+	void OfficeLightStateChanged(bool state);
 
     void HomeAsssitantConnectionStateChanged(bool connected);
 
@@ -73,6 +79,8 @@ private:
     bool _bedroomLightState = false;
 
     bool _kitchenLightState = false;
+
+	bool _officeLightState = false;
 
     double _co2SensorValue = 0;
 

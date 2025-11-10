@@ -29,6 +29,8 @@ private slots:
 
     void OnKitchenLightActionToggled(bool checked);
 
+    void OnOfficeLightActionToggled(bool checked);
+
     void OnConnectionStateChanged(bool connected);
 
     void OnCO2ValueChanged(float value);
