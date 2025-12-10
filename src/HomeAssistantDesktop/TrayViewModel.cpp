@@ -12,6 +12,7 @@ static const QString BEDROOM_LIGHT_ENTITY_ID = "light.bedroom_light";
 static const QString KITCHEN_LIGHT_ENTITY_ID = "light.kitchen";
 static const QString OFFICE_LIGHT_ENTITY_ID = "light.office";
 static const QString CO2_SENSOR_ENTITY_ID = "sensor.view_plus_carbon_dioxide";
+static const QString AUTOMATION_HUMIDIFIER_ON_ID = "automation.humidifier_on";
 static const QStringList ENTITIES = { HUMIDIFIER_ENTITY_ID,
                                       TESTPLUG_ENTITY_ID,
                                       BEDROOM_LIGHT_ENTITY_ID,
@@ -101,6 +102,12 @@ bool TrayViewModel::GetStartWithWindows() const
 void TrayViewModel::SetStartWithWindows(bool startWithWindows)
 {
 	_configurationService->SetStartWithWindows(startWithWindows);
+}
+
+void TrayViewModel::SetHumidifierOnAutomationState(bool enabled)
+{
+    qInfo() << "Setting Humidifier On Automation to " << (enabled ? "enabled" : "disabled");
+    _haService->CallService("automation", QString("turn_%1").arg(enabled ? "on" : "off"), AUTOMATION_HUMIDIFIER_ON_ID);
 }
 
 void TrayViewModel::OnHAConnected()

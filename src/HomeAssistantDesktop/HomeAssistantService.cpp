@@ -186,7 +186,13 @@ int HomeAssistantService::CallService(const QString& domain, const QString& serv
 
 int HomeAssistantService::CallService(const QString& domain, const QString& service, const QString& targetEntity, const QJsonObject& serviceData)
 {
-    return CallService(domain, service, QJsonObject{ {"entity_id", targetEntity} }, serviceData);
+    QJsonObject targetObj;
+	if (!targetEntity.isEmpty())
+    {
+        targetObj["entity_id"] = targetEntity;
+    }
+
+    return CallService(domain, service, targetObj, serviceData);
 }
 
 void HomeAssistantService::FetchStates()

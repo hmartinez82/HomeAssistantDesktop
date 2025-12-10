@@ -39,6 +39,8 @@ private slots:
 
     void OnStartWithWindowsActionTriggered(bool checked);
 
+    void OnHumidifierOnAutomationActionToggled(bool checked);
+
     void ShowNotification(const QString& title, const QString& message);
 
 private:

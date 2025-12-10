@@ -42,6 +42,8 @@ public:
 
 	void SetStartWithWindows(bool startWithWindows);
 
+    void SetHumidifierOnAutomationState(bool enabled);
+
 signals:
     void HumidifierStateChanged(bool state);
 

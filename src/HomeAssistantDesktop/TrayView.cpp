@@ -45,6 +45,12 @@ void TrayView::InitializeComponents()
     _co2Action = new QAction("CO₂");
     _co2Action->setEnabled(false);
 
+    auto humidifierOnAutomation = new QAction("Humidifier On", this);
+    humidifierOnAutomation->setCheckable(true);
+    connect(humidifierOnAutomation, &QAction::triggered, this, &TrayView::OnHumidifierOnAutomationActionToggled);
+
+    _connectedMenu.addAction(humidifierOnAutomation);
+    _connectedMenu.addSeparator();
     _connectedMenu.addAction(_co2Action);
     _connectedMenu.addSeparator();
     _connectedMenu.addAction(humidifierAction);
@@ -136,6 +142,11 @@ void TrayView::OnSetApiTokenActionTriggered()
 void TrayView::OnStartWithWindowsActionTriggered(bool checked)
 {
     _viewModel->SetStartWithWindows(checked);
+}
+
+void TrayView::OnHumidifierOnAutomationActionToggled(bool checked)
+{
+    _viewModel->SetHumidifierOnAutomationState(checked);
 }
 
 void TrayView::ShowNotification(const QString& title, const QString& message)
