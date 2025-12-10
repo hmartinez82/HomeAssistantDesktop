@@ -18,7 +18,8 @@ static const QStringList ENTITIES = { HUMIDIFIER_ENTITY_ID,
                                       BEDROOM_LIGHT_ENTITY_ID,
                                       KITCHEN_LIGHT_ENTITY_ID,
                                       OFFICE_LIGHT_ENTITY_ID,
-                                      CO2_SENSOR_ENTITY_ID };
+                                      CO2_SENSOR_ENTITY_ID,
+                                      AUTOMATION_HUMIDIFIER_ON_ID};
 
 TrayViewModel::TrayViewModel(ConfigurationService* configurationService, HomeAssistantService* haService, QObject *parent) :
   _configurationService(configurationService), _haService(haService), QObject{parent}
@@ -104,6 +105,11 @@ void TrayViewModel::SetStartWithWindows(bool startWithWindows)
 	_configurationService->SetStartWithWindows(startWithWindows);
 }
 
+bool TrayViewModel::GetHumidifierOnAutomationState()
+{
+    return _humidifierOnAutomationState;
+}
+
 void TrayViewModel::SetHumidifierOnAutomationState(bool enabled)
 {
     qInfo() << "Setting Humidifier On Automation to " << (enabled ? "enabled" : "disabled");
@@ -137,6 +143,7 @@ void TrayViewModel::OnHAEventReceived(const QJsonObject& event)
     EmitIfChanged(BEDROOM_LIGHT_ENTITY_ID, firstChild, _bedroomLightState, &TrayViewModel::BedroomLightStateChanged);
     EmitIfChanged(KITCHEN_LIGHT_ENTITY_ID, firstChild, _kitchenLightState, &TrayViewModel::KitchenLightStateChanged);
     EmitIfChanged(OFFICE_LIGHT_ENTITY_ID, firstChild, _officeLightState, &TrayViewModel::OfficeLightStateChanged);
+	EmitIfChanged(AUTOMATION_HUMIDIFIER_ON_ID, firstChild, _humidifierOnAutomationState, &TrayViewModel::HumidifierOnAutomationStateChanged);
 
     if (firstChild.contains(CO2_SENSOR_ENTITY_ID))
     {

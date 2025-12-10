@@ -42,6 +42,8 @@ public:
 
 	void SetStartWithWindows(bool startWithWindows);
 
+    bool GetHumidifierOnAutomationState();
+
     void SetHumidifierOnAutomationState(bool enabled);
 
 signals:
@@ -60,6 +62,8 @@ signals:
     void NotificationReceived(const QString& title, const QString& message);
 
     void CO2ValueChanged(float value);
+
+	void HumidifierOnAutomationStateChanged(bool state);
 
 private slots:
 
@@ -83,6 +87,8 @@ private:
     bool _kitchenLightState = false;
 
 	bool _officeLightState = false;
+
+	bool _humidifierOnAutomationState = false;
 
     double _co2SensorValue = 0;
 

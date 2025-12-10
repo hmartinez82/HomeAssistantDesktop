@@ -47,6 +47,7 @@ void TrayView::InitializeComponents()
 
     auto humidifierOnAutomation = new QAction("Humidifier On", this);
     humidifierOnAutomation->setCheckable(true);
+    humidifierOnAutomation->setChecked(_viewModel->GetHumidifierOnAutomationState());
     connect(humidifierOnAutomation, &QAction::triggered, this, &TrayView::OnHumidifierOnAutomationActionToggled);
 
     _connectedMenu.addAction(humidifierOnAutomation);
@@ -91,6 +92,7 @@ void TrayView::InitializeComponents()
 	connect(_viewModel, &TrayViewModel::BedroomLightStateChanged, bedroomLightAction, &QAction::setChecked);
 	connect(_viewModel, &TrayViewModel::KitchenLightStateChanged, kitchenLightAction, &QAction::setChecked);
     connect(_viewModel, &TrayViewModel::OfficeLightStateChanged, officeLightAction, &QAction::setChecked);
+	connect(_viewModel, &TrayViewModel::HumidifierOnAutomationStateChanged, humidifierOnAutomation, &QAction::setChecked);
 }
 
 void TrayView::OnQuitActionTriggered(bool)
