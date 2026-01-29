@@ -1,6 +1,9 @@
 #include <QApplication>
 #include <QDir>
 #include <QMessageBox>
+#include <QStandardPaths>
+#include <Windows.h>
+#include <appmodel.h>
 #include "HomeAssistantService.h"
 #include "TrayViewModel.h"
 #include "TrayView.h"
@@ -20,7 +23,14 @@ int main(int argc, char* argv[])
     a.setApplicationName("HomeAssistantDesktop");
 	a.setQuitOnLastWindowClosed(false);
 
-    SetupLogger(QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/HomeAssistant.log"));
+    UINT32 length = 0;
+    auto result = GetCurrentPackageFamilyName(&length, nullptr);
+    if (result == ERROR_INSUFFICIENT_BUFFER) { //Packaged
+        SetupLogger(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/HomeAssistant.log");
+    }
+    else { // Not packaged
+        SetupLogger(QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/HomeAssistant.log"));
+    }
 
     ConfigurationService configService;
 

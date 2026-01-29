@@ -112,17 +112,20 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\lib\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>WinApi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>WinApi.lib;WindowsApp.lib;OneCoreUap.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)WinApi\Include;$(SolutionDir)spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>winapp create-debug-identity --manifest $(SolutionDir)..\appxmanifest.xml $(OutputPath)$(TargetFileName)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\lib\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>WinApi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>WinApi.lib;WindowsApp.lib;OneCoreUap.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)WinApi\Include;$(SolutionDir)spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -132,17 +135,20 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\lib\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>WinApi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>WinApi.lib;WindowsApp.lib;OneCoreUap.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)WinApi\Include;$(SolutionDir)spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>winapp create-debug-identity --manifest $(SolutionDir)..\appxmanifest.xml $(OutputPath)$(TargetFileName)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)..\lib\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>WinApi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>WinApi.lib;WindowsApp.lib;OneCoreUap.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)WinApi\Include;$(SolutionDir)spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -230,6 +236,9 @@
     <QtMoc Include="ConfigurationService.h" />
     <ClInclude Include="Logging.h" />
     <QtMoc Include="NotificationServer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\appxmanifest.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
