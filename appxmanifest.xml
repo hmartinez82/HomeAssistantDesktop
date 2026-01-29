@@ -45,7 +45,7 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
       </uap:VisualElements>
       <Extensions>
-        <desktop:Extension Category="windows.startupTask" Enabled="true" EntryPoint="Windows.FullTrustApplication">
+        <desktop:Extension Category="windows.startupTask" EntryPoint="Windows.FullTrustApplication">
           <desktop:StartupTask TaskId="HomeAssistantDesktopStartupTask" Enabled="true" DisplayName="HomeAssistant Desktop" />
         </desktop:Extension>
       </Extensions>

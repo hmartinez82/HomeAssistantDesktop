@@ -13,6 +13,10 @@ std::string WinApi_ReadAuthToken();
 
 void WinApi_StoreAuthToken(const std::string& token);
 
+bool WinApi_GetStartupEnabled();
+
+void WinApi_SetStartupEnabled(bool enable);
+
 class WinApiError : public std::exception
 {
 public:

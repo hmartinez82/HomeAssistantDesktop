@@ -5,6 +5,7 @@
 #include <iterator>
 
 using namespace winrt;
+using namespace Windows::ApplicationModel;
 using namespace Windows::Security::Credentials;
 
 void WinApi_Initialize()
@@ -71,6 +72,32 @@ void WinApi_StoreAuthToken(const std::string& token)
     {
         throw WinApiError(ex.code().value, to_string(ex.message()));
     }
+}
+
+bool WinApi_GetStartupEnabled()
+{
+    auto startupTask = StartupTask::GetAsync(L"HomeAssistantDesktopStartupTask").get();
+    switch (startupTask.State())
+    {
+    case StartupTaskState::Enabled:
+    case StartupTaskState::EnabledByPolicy:
+		return true;
+	default:
+		return false;
+    }
+}
+
+void WinApi_SetStartupEnabled(bool enable)
+{
+    auto startupTask = StartupTask::GetAsync(L"HomeAssistantDesktopStartupTask").get();
+    if (enable)
+    {
+        startupTask.RequestEnableAsync().get();
+    }
+    else
+    {
+        startupTask.Disable();
+	}
 }
 
 WinApiError::WinApiError(HRESULT errorCode, const std::string& message) : std::exception(message.c_str()),

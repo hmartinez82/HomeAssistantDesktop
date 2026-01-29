@@ -72,31 +72,10 @@ bool ConfigurationService::InputAuthToken()
 
 bool ConfigurationService::GetStartWithWindows() const
 {
-	QSettings settings(R"(HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run)", QSettings::Registry64Format);
-	auto var = settings.value(REG_VALUE_STARTUP);
-	if (var.isValid())
-	{
-		return var.toString() == _appPath;
-	}
-	else
-	{
-		return false;
-	}
-	
+	return WinApi_GetStartupEnabled();
 }
 
 void ConfigurationService::SetStartWithWindows(bool startWithWindows)
 {
-	QSettings settings(R"(HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run)", QSettings::Registry64Format);
-	if (startWithWindows)
-	{
-		if (settings.value(REG_VALUE_STARTUP) != _appPath)
-		{
-			settings.setValue(REG_VALUE_STARTUP, _appPath);
-		}
-	}
-	else
-	{
-		settings.remove(REG_VALUE_STARTUP);
-	}
+	WinApi_SetStartupEnabled(startWithWindows);
 }
