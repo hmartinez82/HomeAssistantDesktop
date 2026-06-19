@@ -10,15 +10,12 @@ static const auto REG_VALUE_STARTUP = QStringLiteral("Home Assistant Desktop");
 
 ConfigurationService::ConfigurationService(QObject* parent) : QObject(parent)
 {
-	WinApi_Shutdown();
-	WinApi_Initialize();
-
 	_appPath = '"' % QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) % '"';
 }
 
 ConfigurationService::~ConfigurationService()
 {
-	WinApi_Shutdown();
+
 }
 
 bool ConfigurationService::IsAuthTokenSet() const
